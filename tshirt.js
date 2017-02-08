@@ -12,26 +12,45 @@ var context = canvas.getContext('2d')
 
 // Shirt
 
-var pattern =
-  [ [ [0, 0]
-    , [100, 0]
-    , [200, 100]
-    , [100, 100]
-    ]
-  ]
+var pattern = {
+  parts: [
+    {
+      points: [
+        {x: 0, y: 0},
+        {x: 20, y: 10},
+        {x: 40, y: 10},
+        {x: 40, y: -10},
+        {x: 20, y: -10},
+        {x: 20, y: -60},
+        {x: 0, y: -60},
+        {x: -20, y: -60},
+        {x: -20, y: -10},
+        {x: -40, y: -10},
+        {x: -40, y: 10},
+        {x: -20, y: 10},
+      ],
+      // distances: [
+      //   {a: 3, b: 0, distance: 100},
+      // ],
+      // angles: [
+      //   {a: 0, b: 1, c: 2, angle: Math.PI/4},
+      // ],
+    },
+  ],
+}
 
 // Geometry
 
 function distanceBetween (A, B) {
-  var aSquared = Math.pow((A[0] - B[0]), 2)
-  var bSquared = Math.pow((A[1] - B[1]), 2)
+  var aSquared = Math.pow((A.x - B.x), 2)
+  var bSquared = Math.pow((A.y - B.y), 2)
   return Math.sqrt(aSquared + bSquared)
 }
 
 function angleBetween(A, B, C) {
-  var AB = Math.sqrt(Math.pow(B[0]-A[0], 2)+ Math.pow(B[1]-A[1], 2))
-  var BC = Math.sqrt(Math.pow(B[0]-C[0], 2)+ Math.pow(B[1]-C[1], 2))
-  var AC = Math.sqrt(Math.pow(C[0]-A[0], 2)+ Math.pow(C[1]-A[1], 2))
+  var AB = Math.sqrt(Math.pow(B.x-A.x, 2)+ Math.pow(B.y-A.y, 2))
+  var BC = Math.sqrt(Math.pow(B.x-C.x, 2)+ Math.pow(B.y-C.y, 2))
+  var AC = Math.sqrt(Math.pow(C.x-A.x, 2)+ Math.pow(C.y-A.y, 2))
   return Math.acos((BC * BC + AB * AB - AC * AC) / (2 * BC * AB))
 }
 
@@ -39,66 +58,55 @@ function angleBetween(A, B, C) {
 
 var PTCL = Particulate;
 var PARTICLES = 0;
+var part
+var points
 
-for (let i = 0, len = pattern.length; i < len; i++) {
-  const polygon = pattern[i]
-  let x = 0
-  let y = 0
-  PARTICLES += polygon.length
-  for (let i = 0, len = polygon.length; i < len; i++) {
-    const vector = polygon[i]
-  }  
+for (var i = 0, len = pattern.parts.length; i < len; i++) {
+  part = pattern.parts[i]
+  points = part.points
+  PARTICLES += points.length
 }
-
-var BOUNCE = 0
-
-
-
 
 var system = PTCL.ParticleSystem.create(PARTICLES, 2);
 
-console.log(system)
-
-system.each(function (i) {
-  var a = i
-  var b = i + 1
-  if (b >= PARTICLES) {
-    b = 0
-  }
-  var c = i + 2
-  if (c >= PARTICLES) {
-    c = 1
-  }
-
-
-  if (i > 0 && i < PARTICLES - 1) {
-    system.setPosition(i
-    , pattern[0][i][0]
-    , pattern[0][i][1]
-    , 0
-    )
-  }
-
-  var linkDistance = distanceBetween(pattern[0][a], pattern[0][b])
-  var linkIndices = [a, b]
-  system.addConstraint(PTCL.DistanceConstraint.create(linkDistance, linkIndices));
-
-  var angle = angleBetween(pattern[0][a], pattern[0][b], pattern[0][c])
-  var angleIndices = [a, b, c]
-  system.addConstraint(PTCL.AngleConstraint.create(angle, angleIndices));
-
+for (var i = 0, len = points.length; i < len; i++) {
+  // Initial position
+  system.setPosition(i, points[i].x, points[i].y, 0)
   system.setWeight(i, 10)
 
-});
+  // Distance and angle constraints from initial positions
+  var a = i
+  var b = i + 1
+  var c = i + 2
+  if (b >= len) {
+    b = 0
+    c = 1
+  } else if (c >= len) {
+    c = 0
+  }
+
+  var linkDistance = distanceBetween(points[a], points[b])
+  system.addConstraint(PTCL.DistanceConstraint.create(linkDistance, a, b));
+
+  var angle = angleBetween(points[a], points[b], points[c])
+  var angleIndices = [a, b, c]
+  system.addConstraint(PTCL.AngleConstraint.create(angle, angleIndices));
+}
+
+// for (var i = 0, len = part.distances.length; i < len; i++) {
+//   var distanceCo = part.distances[i]
+//   system.addConstraint(PTCL.DistanceConstraint.create(distanceCo.distance, distanceCo.a, distanceCo.b))
+// }
+
 
 var origin = [0.0, 0.0, 0.0];
 var normal = [0.0, 0.0, 1.0];
-var bounds = PTCL.BoundingPlaneConstraint.create(origin, normal, size2);
+var bounds = PTCL.BoundingPlaneConstraint.create(origin, normal, size);
 system.addConstraint(bounds);
 
 var attractor = PTCL.PointForce.create([0.0, 0.0, 0.0]
 , { type: PTCL.Force.ATTRACTOR
-  , radius: size
+  , radius: size*4
   , intensity: 0.5
   }
 )
