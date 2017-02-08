@@ -1,24 +1,25 @@
-console.log(Particulate, document.body)
-
-var size = 500
+var WIDTH = window.innerWidth
+var HEIGHT = window.innerHeight
+var size = Math.min(WIDTH, HEIGHT)
 var size2 = size/2
 var TAU = Math.PI * 2
 
-var LINK_DISTANCE = 300
-var ANGLE = TAU/6
+var LINK_DISTANCE = WIDTH/4
+var ANGLE = TAU/4
 
 var canvas = document.createElement('canvas')
-canvas.width = size
-canvas.height = size
+canvas.width = WIDTH
+canvas.height = HEIGHT
 document.body.appendChild(canvas)
 var context = canvas.getContext('2d')
 
 // Shirt
 
 var pattern =
-  [ [ [0, 10]
+  [ [ [0, 0]
     , [10, 0]
-    , [0, -10]
+    , [20, 10]
+    , [10, 10]
     ]
   ]
 
@@ -47,14 +48,16 @@ var system = PTCL.ParticleSystem.create(PARTICLES, 2);
 var linkIndices = [];
 var angleIndices = [];
 
+console.log(system)
+
 system.each(function (i) {
   var a = i - 1;
   var b = i;
 
   if (i > 0 && i < PARTICLES - 1) {
     system.setPosition(i
-    , 0
-    , 0
+    , pattern[0][i][0]
+    , pattern[0][i][1]
     , 0
     )
   }
@@ -82,10 +85,10 @@ var normal = [0.0, 0.0, 1.0];
 var bounds = PTCL.BoundingPlaneConstraint.create(origin, normal, size2);
 system.addConstraint(bounds);
 
-var index0 = 0
-var pin0 = PTCL.PointConstraint.create([0, -size/4, 0], index0)
-system.setWeight(index0, 0)
-system.addPinConstraint(pin0)
+// var index0 = 0
+// var pin0 = PTCL.PointConstraint.create([0, -size/4, 0], index0)
+// system.setWeight(index0, 0)
+// system.addPinConstraint(pin0)
 
 var attractor = PTCL.PointForce.create([0.0, 0.0, 0.0]
 , { type: PTCL.Force.ATTRACTOR
