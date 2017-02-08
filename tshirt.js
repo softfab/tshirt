@@ -4,9 +4,6 @@ var size = Math.min(WIDTH, HEIGHT)
 var size2 = size/2
 var TAU = Math.PI * 2
 
-var LINK_DISTANCE = WIDTH/4
-var ANGLE = TAU/4
-
 var canvas = document.createElement('canvas')
 canvas.width = WIDTH
 canvas.height = HEIGHT
@@ -17,11 +14,26 @@ var context = canvas.getContext('2d')
 
 var pattern =
   [ [ [0, 0]
-    , [10, 0]
-    , [20, 10]
-    , [10, 10]
+    , [100, 0]
+    , [200, 100]
+    , [100, 100]
     ]
   ]
+
+// Geometry
+
+function distanceBetween (A, B) {
+  var aSquared = Math.pow((A[0] - B[0]), 2)
+  var bSquared = Math.pow((A[1] - B[1]), 2)
+  return Math.sqrt(aSquared + bSquared)
+}
+
+function angleBetween(A, B, C) {
+  var AB = Math.sqrt(Math.pow(B[0]-A[0], 2)+ Math.pow(B[1]-A[1], 2))
+  var BC = Math.sqrt(Math.pow(B[0]-C[0], 2)+ Math.pow(B[1]-C[1], 2))
+  var AC = Math.sqrt(Math.pow(C[0]-A[0], 2)+ Math.pow(C[1]-A[1], 2))
+  return Math.acos((BC * BC + AB * AB - AC * AC) / (2 * BC * AB))
+}
 
 // Physics
 
@@ -45,14 +57,19 @@ var BOUNCE = 0
 
 var system = PTCL.ParticleSystem.create(PARTICLES, 2);
 
-var linkIndices = [];
-var angleIndices = [];
-
 console.log(system)
 
 system.each(function (i) {
-  var a = i - 1;
-  var b = i;
+  var a = i
+  var b = i + 1
+  if (b >= PARTICLES) {
+    b = 0
+  }
+  var c = i + 2
+  if (c >= PARTICLES) {
+    c = 1
+  }
+
 
   if (i > 0 && i < PARTICLES - 1) {
     system.setPosition(i
@@ -62,33 +79,22 @@ system.each(function (i) {
     )
   }
 
-  if (i > 0) {
-    linkIndices.push(a, b);
-  }
+  var linkDistance = distanceBetween(pattern[0][a], pattern[0][b])
+  var linkIndices = [a, b]
+  system.addConstraint(PTCL.DistanceConstraint.create(linkDistance, linkIndices));
 
-  if (i > 0 && i < PARTICLES - 1) {
-    angleIndices.push(a, b, b + 1);
-  }
+  var angle = angleBetween(pattern[0][a], pattern[0][b], pattern[0][c])
+  var angleIndices = [a, b, c]
+  system.addConstraint(PTCL.AngleConstraint.create(angle, angleIndices));
 
   system.setWeight(i, 10)
 
 });
 
-linkIndices.push(0, PARTICLES-1)
-angleIndices.push(PARTICLES-1, 0, 1);
-
-system.addConstraint(PTCL.DistanceConstraint.create(LINK_DISTANCE, linkIndices));
-system.addConstraint(PTCL.AngleConstraint.create(ANGLE, angleIndices));
-
 var origin = [0.0, 0.0, 0.0];
 var normal = [0.0, 0.0, 1.0];
 var bounds = PTCL.BoundingPlaneConstraint.create(origin, normal, size2);
 system.addConstraint(bounds);
-
-// var index0 = 0
-// var pin0 = PTCL.PointConstraint.create([0, -size/4, 0], index0)
-// system.setWeight(index0, 0)
-// system.addPinConstraint(pin0)
 
 var attractor = PTCL.PointForce.create([0.0, 0.0, 0.0]
 , { type: PTCL.Force.ATTRACTOR
