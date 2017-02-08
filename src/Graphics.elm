@@ -23,7 +23,7 @@ scene (w,h) locs =
   in
     Debug.watch (toString locs)
     layers
-      [ collage w h [(drawPolygon (mouseToGraphics (w,h) locs))]
+      [ collage w h [(drawPolygon (mouseToGraphics (w, h) locs))]
       , show "Click to draw a polygon."
       ]
 
