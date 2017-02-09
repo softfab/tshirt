@@ -15,15 +15,19 @@ var context = canvas.getContext('2d')
 AngleConstraint.prototype.draw = function(ctx) {
   var startAngle = Math.atan2(this.b.pos.y - this.a.pos.y, this.b.pos.x - this.a.pos.x) + Math.PI
 	ctx.beginPath();
-  ctx.arc(this.b.pos.x, this.b.pos.y, 10, startAngle, startAngle+this.angle)
-	// ctx.moveTo(this.a.pos.x, this.a.pos.y);
-	// ctx.lineTo(this.b.pos.x, this.b.pos.y);
-	// ctx.lineTo(this.c.pos.x, this.c.pos.y);
-	var tmp = ctx.lineWidth;
-	ctx.lineWidth = 1;
-	ctx.strokeStyle = "rgba(0,0,0,0.5)";
+  ctx.arc(this.b.pos.x, this.b.pos.y, 7, startAngle, startAngle+this.angle)
+	ctx.lineWidth = 3;
+	ctx.strokeStyle = "rgba(0,0,0,"+this.stiffness+")";
 	ctx.stroke();
-	ctx.lineWidth = tmp;
+}
+
+DistanceConstraint.prototype.draw = function(ctx) {
+	ctx.beginPath();
+	ctx.moveTo(this.a.pos.x, this.a.pos.y);
+	ctx.lineTo(this.b.pos.x, this.b.pos.y);
+	ctx.lineWidth = 3;
+	ctx.strokeStyle = "rgba(0,0,0,"+this.stiffness+")";
+	ctx.stroke();
 }
 
 
