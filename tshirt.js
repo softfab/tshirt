@@ -10,6 +10,23 @@ canvas.height = HEIGHT
 document.body.appendChild(canvas)
 var context = canvas.getContext('2d')
 
+// Verlet patch
+
+AngleConstraint.prototype.draw = function(ctx) {
+  var startAngle = Math.atan2(this.b.pos.y - this.a.pos.y, this.b.pos.x - this.a.pos.x) + Math.PI
+	ctx.beginPath();
+  ctx.arc(this.b.pos.x, this.b.pos.y, 10, startAngle, startAngle+this.angle)
+	// ctx.moveTo(this.a.pos.x, this.a.pos.y);
+	// ctx.lineTo(this.b.pos.x, this.b.pos.y);
+	// ctx.lineTo(this.c.pos.x, this.c.pos.y);
+	var tmp = ctx.lineWidth;
+	ctx.lineWidth = 1;
+	ctx.strokeStyle = "rgba(0,0,0,0.5)";
+	ctx.stroke();
+	ctx.lineWidth = tmp;
+}
+
+
 // Shirt
 
 var pattern = {
@@ -17,21 +34,27 @@ var pattern = {
     {
       points: [
         {x: 0, y: 0},
-        {x: 20, y: 10},
-        {x: 40, y: 10},
-        {x: 40, y: -10},
         {x: 20, y: -10},
-        {x: 20, y: -60},
-        {x: 0, y: -60},
-        {x: -20, y: -60},
-        {x: -20, y: -10},
-        {x: -40, y: -10},
-        {x: -40, y: 10},
+        {x: 40, y: -10},
+        {x: 40, y: 10},
+        {x: 20, y: 10},
+        {x: 20, y: 60},
+        {x: 0, y: 60},
+        {x: -20, y: 60},
         {x: -20, y: 10},
+        {x: -40, y: 10},
+        {x: -40, y: -10},
+        {x: -20, y: -10},
       ],
-      // distances: [
-      //   {a: 3, b: 0, distance: 100},
-      // ],
+      distances: [
+        // height
+        {a: 0, b: 6, distance: 100},
+        // bust
+        {a: 4, b: 8, distance: 100},
+        // sleeve
+        {a: 1, b: 2, distance: 60},
+        {a: 10, b: 11, distance: 60},
+      ],
       // angles: [
       //   {a: 0, b: 1, c: 2, angle: Math.PI/4},
       // ],
@@ -56,81 +79,60 @@ function angleBetween(A, B, C) {
 
 // Physics
 
-var PTCL = Particulate;
-var PARTICLES = 0;
-var part
-var points
+var sim = new VerletJS(WIDTH, HEIGHT, canvas)
+sim.friction = 1
+console.log(sim, pattern)
 
-for (var i = 0, len = pattern.parts.length; i < len; i++) {
-  part = pattern.parts[i]
-  points = part.points
-  PARTICLES += points.length
-}
+sim.composites = pattern.parts.map(function (part, index) {
+  var composite = new sim.Composite()
+  var points = part.points
+  composite.particles = points.map(function (point, index) {
+    return new Particle(new Vec2(point.x + WIDTH/2, point.y + HEIGHT/2))
+  })
 
-var system = PTCL.ParticleSystem.create(PARTICLES, 2);
+  // Pin first
+  composite.pin(0, new Vec2(WIDTH/2, HEIGHT/2))
 
-for (var i = 0, len = points.length; i < len; i++) {
-  // Initial position
-  system.setPosition(i, points[i].x, points[i].y, 0)
-  system.setWeight(i, 10)
+  for (var i = 0, len = points.length; i < len; i++) {
+    // Distance and angle constraints from initial positions
+    var a = i
+    var b = i + 1
+    var c = i + 2
+    if (b >= len) {
+      b = 0
+      c = 1
+    } else if (c >= len) {
+      c = 0
+    }
 
-  // Distance and angle constraints from initial positions
-  var a = i
-  var b = i + 1
-  var c = i + 2
-  if (b >= len) {
-    b = 0
-    c = 1
-  } else if (c >= len) {
-    c = 0
+    // var linkDistance = distanceBetween(points[a], points[b])
+    composite.constraints.push(
+      new DistanceConstraint(composite.particles[a], composite.particles[b], 0.2)
+    )
+
+    // var angle = angleBetween(points[a], points[b], points[c])
+    // var angleIndices = [a, b, c]
+    // system.addConstraint(PTCL.AngleConstraint.create(angle, angleIndices));
+    composite.constraints.push(
+      new AngleConstraint(composite.particles[a], composite.particles[b], composite.particles[c], 0.9)
+    )
   }
 
-  var linkDistance = distanceBetween(points[a], points[b])
-  system.addConstraint(PTCL.DistanceConstraint.create(linkDistance, a, b));
-
-  var angle = angleBetween(points[a], points[b], points[c])
-  var angleIndices = [a, b, c]
-  system.addConstraint(PTCL.AngleConstraint.create(angle, angleIndices));
-}
-
-// for (var i = 0, len = part.distances.length; i < len; i++) {
-//   var distanceCo = part.distances[i]
-//   system.addConstraint(PTCL.DistanceConstraint.create(distanceCo.distance, distanceCo.a, distanceCo.b))
-// }
-
-
-var origin = [0.0, 0.0, 0.0];
-var normal = [0.0, 0.0, 1.0];
-var bounds = PTCL.BoundingPlaneConstraint.create(origin, normal, size);
-system.addConstraint(bounds);
-
-var attractor = PTCL.PointForce.create([0.0, 0.0, 0.0]
-, { type: PTCL.Force.ATTRACTOR
-  , radius: size*4
-  , intensity: 0.5
+  for (var i = 0, len = part.distances.length; i < len; i++) {
+    var distanceCo = part.distances[i]
+    // system.addConstraint(PTCL.DistanceConstraint.create(distanceCo.distance, distanceCo.a, distanceCo.b))
+    composite.constraints.push(
+      new DistanceConstraint(composite.particles[distanceCo.a], composite.particles[distanceCo.b], 0.5, distanceCo.distance)
+    )
   }
-)
-system.addForce(attractor);
 
+  return composite
+})
 
-// VIZ
-
-function draw (positions) {
-  context.clearRect(0, 0, size, size)
-  context.translate(size2, size2)
-  context.beginPath()
-  for (let i = 0, len = positions.length; i < len; i+=3) {
-    const position = positions[i]
-    context.lineTo(positions[i], positions[i+1])
-  }
-  context.closePath()
-  context.stroke()
-  context.translate(-size2, -size2)
-}
 
 function animate () {
   requestAnimationFrame(animate)
-  system.tick(1);
-  draw(system.positions)
+  sim.frame(16)
+  sim.draw()
 }
 animate()
