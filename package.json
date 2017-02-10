@@ -1,0 +1,32 @@
+{
+  "name": "softfab",
+  "version": "0.0.1",
+  "description": "WIP",
+  "main": "tshirt.js",
+  "scripts": {
+    "start": "bankai start demo.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/softfab/tshirt.git"
+  },
+  "keywords": [
+    "softfab"
+  ],
+  "author": "forresto",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/softfab/tshirt/issues"
+  },
+  "homepage": "https://github.com/softfab/tshirt#readme",
+  "devDependencies": {
+    "bankai": "^5.4.0"
+  },
+  "dependencies": {
+    "choo": "^4.1.0",
+    "nanocomponent": "^1.1.2",
+    "xtend": "^4.0.1",
+    "yo-yo": "^1.4.0"
+  }
+}
