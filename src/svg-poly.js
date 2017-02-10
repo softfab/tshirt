@@ -34,7 +34,6 @@ function fit (points, fitWidth, fitHeight, padding = 4) {
   const scale = Math.min(fitWidth/width, fitHeight/height)
   const paddingLeft = Math.max(0, (fitWidth - (width * scale)) / 2)
   const paddingTop = Math.max(0, (fitHeight - (height * scale)) / 2)
-  console.log({left, bottom, width, height, scale, paddingLeft, paddingTop})
   return points.map(function (point) {
     return {
       x: ((point.x - left) * scale) + paddingLeft + padding,

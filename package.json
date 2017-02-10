@@ -4,7 +4,7 @@
   "description": "WIP",
   "main": "tshirt.js",
   "scripts": {
-    "start": "bankai start demo.js",
+    "start": "bankai start demo.js --debug",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

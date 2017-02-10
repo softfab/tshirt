@@ -11,25 +11,27 @@ const model = {
     selectedPoint: null,
   },
   reducers: {
-    setPart: function (state, data) {
-
+    selectPart: function (state, data) {
+      return { selectedPart: data }
     },
-    setPoint: function (state, data) {
+    selectPoint: function (state, data) {
 
     },
     update: function (state, data) {
-      console.log(state, data)
       return { title: data }
     }
   }
 }
 
 function mainView (state, prev, send) {
+  const {pattern, selectedPart} = state
+  const {parts} = pattern
+
   return html`
     <main>
       <h1>Fit Pattern</h1>
       <h2>Base Shapes</h2>
-      ${BaseShape(state.pattern.parts)}
+      ${BaseShape(parts, selectedPart, send)}
       <h2>Debug</h2>
       <pre>${JSON.stringify(state.pattern, null, 2)}</pre>
     </main>
