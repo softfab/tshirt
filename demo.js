@@ -1,6 +1,19 @@
 const startApp = require('./src/app')
 
+// Measurement keys from http://developer.bodylabs.com/red_api_measurements.html
+
 const pattern = {
+  measurements: {
+    'neck_base': 200,
+    'across_back_shoulder_neck_base_shoulder': 200,
+    'along_back_neck_base_to_gluteal_hip': 200,
+    'chest': 400,
+    'underbust': 350,
+    'mid_upper_arm_left': 200,
+    'shoulder_elbow_wrist_left': 400,
+    'shoulder_to_midhand_left': 380,
+    'wrist_left': 100,
+  },
   parts: [
     {
       points: [
@@ -34,8 +47,8 @@ const pattern = {
       points: [
         {x: -10, y: 0},
         {x: 0, y: 10},
-        {x: 10, y: 0},
-        {x: 0, y: -5},
+        {x: 5, y: 0},
+        {x: 0, y: -10},
       ],
       distances: [
       ],
