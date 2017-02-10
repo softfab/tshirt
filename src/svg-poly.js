@@ -27,13 +27,18 @@ function closedPath (points) {
   return path
 }
 
-function fit (points, fitWidth, fitHeight) {
+function fit (points, fitWidth, fitHeight, padding = 4) {
+  fitWidth -= padding * 2
+  fitHeight -= padding * 2
   const {left, bottom, width, height} = minMaxBox(points)
-  const scaleBy = Math.min(fitWidth/width, fitHeight/height)
+  const scale = Math.min(fitWidth/width, fitHeight/height)
+  const paddingLeft = Math.max(0, (fitWidth - (width * scale)) / 2)
+  const paddingTop = Math.max(0, (fitHeight - (height * scale)) / 2)
+  console.log({left, bottom, width, height, scale, paddingLeft, paddingTop})
   return points.map(function (point) {
     return {
-      x: (point.x - left) * scaleBy,
-      y: (point.y - bottom) * scaleBy,
+      x: ((point.x - left) * scale) + paddingLeft + padding,
+      y: ((point.y - bottom) * scale) + paddingTop + padding,
     }
   })
 }
@@ -42,10 +47,16 @@ function svgPoly (points, width = 72, height = 72) {
   return html`
     <svg
       width="${width}" height="${height}"
+      style="
+        overflow:visible;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        background-color: #eee;
+      "
     >
       <path
         d="${closedPath(fit(points, width, height))}"
-        fill="none" stroke="black" stroke-width="1"
+        fill="#fff" stroke="black" stroke-width="2"
       />
     </svg>
   `
