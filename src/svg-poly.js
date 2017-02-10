@@ -12,29 +12,40 @@ function minMaxBox (points) {
     bottom = Math.min(bottom, y)
     left = Math.min(left, x)
   }
-  return [left, bottom, right-left, top-bottom].join(' ')
+  const width = right - left
+  const height = top - bottom
+  return {left, bottom, width, height}
 }
 
-function path (points) {
-  return 'M ' +
-    points
-      .map(function (point) {
-        return point.x + ' ' + point.y
-      })
-      .join(' L ') +
-    ' L ' +
-    points[0].x + ' ' + points[0].y
+function closedPath (points) {
+  let path = 'M '
+  for (let i = 0, len = points.length; i < len; i++) {
+    const {x, y} = points[i]
+    path += x + ' ' + y + ' L '
+  }
+  path += points[0].x + ' ' + points[0].y
+  return path
+}
+
+function fit (points, fitWidth, fitHeight) {
+  const {left, bottom, width, height} = minMaxBox(points)
+  const scaleBy = Math.min(fitWidth/width, fitHeight/height)
+  return points.map(function (point) {
+    return {
+      x: (point.x - left) * scaleBy,
+      y: (point.y - bottom) * scaleBy,
+    }
+  })
 }
 
 function svgPoly (points, width = 72, height = 72) {
   return html`
     <svg
       width="${width}" height="${height}"
-      viewBox="${minMaxBox(points)}"
     >
       <path
-        d="${path(points)}"
-        fill="none" stroke="black"
+        d="${closedPath(fit(points, width, height))}"
+        fill="none" stroke="black" stroke-width="1"
       />
     </svg>
   `

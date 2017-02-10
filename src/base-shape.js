@@ -6,7 +6,7 @@ function renderPart (part) {
   return svgPoly(points)
 }
 
-function baseShape (parts) {
+function BaseShape (parts) {
   return html`
   <div>
     ${parts.map(renderPart)}
@@ -14,4 +14,4 @@ function baseShape (parts) {
   `
 }
 
-module.exports = baseShape
+module.exports = BaseShape

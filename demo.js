@@ -30,6 +30,18 @@ const pattern = {
       //   {a: 0, b: 1, c: 2, angle: Math.PI/4},
       // ],
     },
+    {
+      points: [
+        {x: -10, y: 0},
+        {x: 0, y: 10},
+        {x: 10, y: 0},
+        {x: 0, y: -5},
+      ],
+      distances: [
+      ],
+      angles: [
+      ],
+    },
   ],
 }
 

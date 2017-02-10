@@ -27,7 +27,10 @@ const model = {
 function mainView (state, prev, send) {
   return html`
     <main>
+      <h1>Fit Pattern</h1>
+      <h2>Base Shapes</h2>
       ${BaseShape(state.pattern.parts)}
+      <h2>Debug</h2>
       <pre>${JSON.stringify(state.pattern, null, 2)}</pre>
     </main>
   `
