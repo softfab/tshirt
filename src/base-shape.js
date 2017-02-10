@@ -1,16 +1,20 @@
 const html = require('choo/html')
 const svgPoly = require('./svg-poly')
 
-function renderPart (part) {
+function renderPart (part, index) {
   const {points} = part
-  return svgPoly(points)
+  return html`
+  <li>
+    ${svgPoly(points)}
+  </li>
+  `
 }
 
 function BaseShape (parts) {
   return html`
-  <div>
+  <ol>
     ${parts.map(renderPart)}
-  </div>
+  </ol>
   `
 }
 
