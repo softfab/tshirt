@@ -2,7 +2,7 @@ const html = require('choo/html')
 const choo = require('choo')
 const xtend = require('xtend')
 
-const baseShape = require('./base-shape')
+const partList = require('./part-list')
 
 const model = {
   state: {
@@ -30,8 +30,21 @@ function mainView (state, prev, send) {
   return html`
     <main>
       <h1>Fit Pattern</h1>
-      <h2>Base Shapes</h2>
-      ${baseShape(parts, selectedPart, send)}
+      <section>
+        <h2>Base Shapes</h2>
+        ${partList(parts, selectedPart, send)}
+        todo:
+        <ul>
+          <li>add parts</li>
+          <li>edit path / drag points</li>
+        </ul>
+      </section>
+      <section>
+      </section>
+      <section>
+      </section>
+      <section>
+      </section>
       <h2>Debug</h2>
       <pre>${JSON.stringify(state.pattern, null, 2)}</pre>
     </main>
