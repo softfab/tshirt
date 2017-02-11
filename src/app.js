@@ -2,7 +2,7 @@ const html = require('choo/html')
 const choo = require('choo')
 const xtend = require('xtend')
 
-const BaseShape = require('./base-shape')
+const baseShape = require('./base-shape')
 
 const model = {
   state: {
@@ -15,7 +15,7 @@ const model = {
       return { selectedPart: data }
     },
     selectPoint: function (state, data) {
-
+      return { selectPoint: data }
     },
     update: function (state, data) {
       return { title: data }
@@ -31,7 +31,7 @@ function mainView (state, prev, send) {
     <main>
       <h1>Fit Pattern</h1>
       <h2>Base Shapes</h2>
-      ${BaseShape(parts, selectedPart, send)}
+      ${baseShape(parts, selectedPart, send)}
       <h2>Debug</h2>
       <pre>${JSON.stringify(state.pattern, null, 2)}</pre>
     </main>

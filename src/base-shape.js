@@ -1,35 +1,52 @@
 const html = require('choo/html')
 const svgPoly = require('./svg-poly')
+// const component = require('nanocomponent')
 
-function renderPart (part, index, selected, send) {
-  const {points} = part
-  function onClick () {
-    send('selectPart', index)
+const renderPart = /*component({
+  render:*/ function (part, index, selected, send) {
+    const {points, id} = part
+    function onClick () {
+      send('selectPart', index)
+    }
+    return html`
+    <li
+      style="
+        background-color: ${selected ? 'cornsilk' : 'transparent'};
+      "
+      onclick=${onClick}
+    >
+      ${svgPoly(points)}
+      ${id}
+    </li>
+    `
+  }/*,
+  onload: function () {
+    console.log('onload part')
+  },
+  onunload: function () {
+    console.log('onunload part')
   }
-  return html`
-  <li
-    style="
-      background-color: ${selected ? 'cornsilk' : 'transparent'};
-    "
-    onclick=${onClick}
-  >
-    ${svgPoly(points)}
-  </li>
-  `
-}
+})*/
 
-function BaseShape (parts, selectedIndex, send) {
-  return html`
-  <ol>
-    ${parts.map(
-      function (part, index) {
-        const selected = (selectedIndex === index)
-        console.log(selected)
-        return renderPart(part, index, selected, send)
-      }
-    )}
-  </ol>
-  `
-}
+const partList = /*component({
+  render:*/ function (parts, selectedIndex, send) {
+    return html`
+    <ol>
+      ${parts.map(
+        function (part, index) {
+          const selected = (selectedIndex === index)
+          return renderPart(part, index, selected, send)
+        }
+      )}
+    </ol>
+    `
+  }/*,
+  onload: function () {
+    console.log('onload parts')
+  },
+  onunload: function () {
+    console.log('onunload parts')
+  }
+})*/
 
-module.exports = BaseShape
+module.exports = partList

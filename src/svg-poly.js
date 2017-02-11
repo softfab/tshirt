@@ -48,14 +48,14 @@ function svgPoly (points, width = 72, height = 72) {
       width="${width}" height="${height}"
       style="
         overflow:visible;
-        border: 2px solid #ccc;
+        border: 1px solid #ccc;
         border-radius: 5px;
         background-color: #eee;
       "
     >
       <path
         d="${closedPath(fit(points, width, height))}"
-        fill="#fff" stroke="black" stroke-width="2"
+        fill="#fff" stroke="black" stroke-width="1"
       />
     </svg>
   `
