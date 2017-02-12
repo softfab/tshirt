@@ -17,15 +17,15 @@ function minMaxBox (points) {
   return {left, bottom, width, height}
 }
 
-function reflect (p, p0, p1) {
-    const dx = p1.x - p0.x
-    const dy = p1.y - p0.y
-    const a = (dx * dx - dy * dy) / (dx * dx + dy * dy)
-    const b = 2 * dx * dy / (dx * dx + dy * dy)
-    const x = a * (p.x - p0.x) + b * (p.y - p0.y) + p0.x
-    const y = b * (p.x - p0.x) - a * (p.y - p0.y) + p0.y
+function reflectPoint (p, p0, p1) {
+  const dx = p1.x - p0.x
+  const dy = p1.y - p0.y
+  const a = (dx * dx - dy * dy) / (dx * dx + dy * dy)
+  const b = 2 * dx * dy / (dx * dx + dy * dy)
+  const x = a * (p.x - p0.x) + b * (p.y - p0.y) + p0.x
+  const y = b * (p.x - p0.x) - a * (p.y - p0.y) + p0.y
 
-    return {x, y}
+  return {x, y}
 }
 
 function makeSymmetrical (points) {
@@ -35,13 +35,13 @@ function makeSymmetrical (points) {
   let i = points.length - 1
   while (i > 0) {
     const point = points[i]
-    simPoints.push(reflect(point, a, b))
+    simPoints.push(reflectPoint(point, a, b))
     i--
   }
   return simPoints
 }
 
-function closedPath (points) {
+function dClosed (points) {
   let path = 'M '
   for (let i = 0, len = points.length; i < len; i++) {
     const {x, y} = points[i]
@@ -66,12 +66,24 @@ function fit (points, fitWidth, fitHeight, padding = 4) {
   })
 }
 
+function line (a, b) {
+  return html`<line
+    x1=${a.x}
+    y1=${a.y}
+    x2=${b.x}
+    y2=${b.y}
+    stroke-width="1"
+    stroke="green"
+  />`
+}
+
 function svgPoly (points, symmetry = false, width = 72, height = 72) {
+  const lastIndex = points.length-1
   if (symmetry) {
     points = makeSymmetrical(points)
   }
   points = fit(points, width, height)
-  const d = closedPath(points)
+  const d = dClosed(points)
   return html`
     <svg
       width="${width}" height="${height}"
@@ -86,6 +98,7 @@ function svgPoly (points, symmetry = false, width = 72, height = 72) {
         d="${d}"
         fill="#fff" stroke="black" stroke-width="1"
       />
+      ${symmetry && line(points[0], points[lastIndex])}
     </svg>
   `
 }
