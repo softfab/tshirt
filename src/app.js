@@ -2,7 +2,7 @@ const html = require('choo/html')
 const choo = require('choo')
 const xtend = require('xtend')
 
-const partList = require('./part-list')
+const olParts = require('./ol-parts')
 
 const model = {
   state: {
@@ -25,14 +25,14 @@ const model = {
 
 function mainView (state, prev, send) {
   const {pattern, selectedPart} = state
-  const {parts} = pattern
+  const {parts, id} = pattern
 
   return html`
     <main>
-      <h1>Fit Pattern</h1>
+      <h1>${id}</h1>
       <section>
-        <h2>Base Shapes</h2>
-        ${partList(parts, selectedPart, send)}
+        <h2>base part shapes</h2>
+        ${olParts(parts, selectedPart, send)}
         todo:
         <ul>
           <li>add parts</li>
@@ -40,13 +40,26 @@ function mainView (state, prev, send) {
         </ul>
       </section>
       <section>
+        <h2>measurements and derived values</h2>
+        todo: add & edit
       </section>
       <section>
+        <h2>constraints</h2>
+        todo: select points in selected part, add/edit distance/angle constraints
       </section>
       <section>
+        <h2>sewing order</h2>
+        todo: sew sim
       </section>
-      <h2>Debug</h2>
-      <pre>${JSON.stringify(state.pattern, null, 2)}</pre>
+      <section>
+        <h2>take over world</h2>
+        todo: site for sharing and commissioning
+
+      </section>
+      <section>
+        <h2>debug</h2>
+        <pre style="max-height: 50vh; overflow: auto;">${JSON.stringify(state.pattern, null, 2)}</pre>
+      </section>
     </main>
   `
 

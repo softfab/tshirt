@@ -2,9 +2,9 @@ const html = require('choo/html')
 const svgPoly = require('./svg-poly')
 // const component = require('nanocomponent')
 
-const renderPart = /*component({
+const liPart = /*component({
   render:*/ function (part, index, selected, send) {
-    const {points, id} = part
+    const {points, symmetry, id} = part
     function onClick () {
       send('selectPart', index)
     }
@@ -15,7 +15,7 @@ const renderPart = /*component({
       "
       onclick=${onClick}
     >
-      ${svgPoly(points)}
+      ${svgPoly(points, symmetry)}
       ${id}
     </li>
     `
@@ -28,14 +28,14 @@ const renderPart = /*component({
   }
 })*/
 
-const partList = /*component({
+const olParts = /*component({
   render:*/ function (parts, selectedIndex, send) {
     return html`
     <ol>
       ${parts.map(
         function (part, index) {
           const selected = (selectedIndex === index)
-          return renderPart(part, index, selected, send)
+          return liPart(part, index, selected, send)
         }
       )}
     </ol>
@@ -49,4 +49,4 @@ const partList = /*component({
   }
 })*/
 
-module.exports = partList
+module.exports = olParts

@@ -3,6 +3,7 @@ const startApp = require('./src/app')
 // Measurement keys from http://developer.bodylabs.com/red_api_measurements.html
 
 const pattern = {
+  id: 'long-sleeve shirt',
   metadata: {
     system: 'us',
   },
