@@ -4,11 +4,13 @@ const xtend = require('xtend')
 
 const olParts = require('./ol-parts')
 const olMeasurements = require('./ol-measurements')
+const svgConstrained = require('./svg-constrained')
+
 
 const model = {
   state: {
     pattern: {},
-    selectedPart: null,
+    selectedPart: 0,
     selectedPoint: null,
   },
   reducers: {
@@ -50,6 +52,7 @@ function mainView (state, prev, send) {
       </section>
       <section>
         <h2>constraints</h2>
+        ${(selectedPart != null) && svgConstrained(parts[selectedPart], measurements)}
         todo: select points in selected part, add/edit distance/angle constraints
       </section>
       <section>

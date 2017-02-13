@@ -11,7 +11,7 @@ const pattern = {
     base: [
       {key: 'neck_base', value: 200},
       {key: 'across_back_shoulder_neck_base_shoulder', value: 200},
-      {key: 'along_back_neck_base_to_gluteal_hip', value: 200},
+      {key: 'along_back_neck_base_to_gluteal_hip', value: 35.0},
       {key: 'chest', value: 200},
       {key: 'underbust', value: 200},
       {key: 'mid_upper_arm_left', value: 200},
@@ -24,33 +24,6 @@ const pattern = {
     ]
   },
   parts: [
-    {
-      id: 'back',
-      symmetry: true,
-      points: [
-        {x: 1.0, y: -1.0},
-        {x: 8.0, y: -1.7},
-        {x: 11.0, y: -3.5},
-        {x: 10.5, y: -11.0},
-        {x: 11.0, y: -15.0},
-        {x: 12.5, y: -19.5},
-        {x: 10.0, y: -21.0},
-        {x: 9.5, y: -25.2},
-        {x: 1.0, y: -27.0},
-      ],
-      distances: [
-        // height
-        {a: 0, b: 6, distance: 100},
-        // bust
-        {a: 4, b: 8, distance: 100},
-        // sleeve
-        {a: 1, b: 2, distance: 60},
-        {a: 10, b: 11, distance: 60},
-      ],
-      // angles: [
-      //   {a: 0, b: 1, c: 2, angle: Math.PI/4},
-      // ],
-    },
     {
       id: 'front',
       symmetry: true,
@@ -66,10 +39,33 @@ const pattern = {
         {x: 6, y: 27.5},
         {x: 1, y: 28},
       ],
-      distances: [
+      constraints: {
+        distances: [
+          // height
+          {points: [0, 9], distance: 'along_back_neck_base_to_gluteal_hip'},
+        ],
+        angles: [
+        ],
+      }
+    },
+    {
+      id: 'back',
+      symmetry: true,
+      points: [
+        {x: 1.0, y: -1.0},
+        {x: 8.0, y: -1.7},
+        {x: 11.0, y: -3.5},
+        {x: 10.5, y: -11.0},
+        {x: 11.0, y: -15.0},
+        {x: 12.5, y: -19.5},
+        {x: 10.0, y: -21.0},
+        {x: 9.5, y: -25.2},
+        {x: 1.0, y: -27.0},
       ],
-      angles: [
-      ],
+      constraints: {
+        distances: [],
+        angles: [],
+      }
     },
     {
       id: 'arm front',
@@ -86,10 +82,10 @@ const pattern = {
         {x: 12.0, y: -1.5},
         {x: 7.0, y: -2.0},
       ],
-      distances: [
-      ],
-      angles: [
-      ],
+      constraints: {
+        distances: [],
+        angles: [],
+      }
     },
     {
       id: 'arm back',
@@ -107,10 +103,10 @@ const pattern = {
         {x: 7.0, y: 1.0},
         {x: 4.0, y: 1.0 },
       ],
-      distances: [
-      ],
-      angles: [
-      ],
+      constraints: {
+        distances: [],
+        angles: [],
+      }
     },
     {
       id: 'arm top',
@@ -131,10 +127,10 @@ const pattern = {
         {x: 2.0, y: 6.75},
         {x: 1.0, y: 7.0},
       ],
-      distances: [
-      ],
-      angles: [
-      ],
+      constraints: {
+        distances: [],
+        angles: [],
+      }
     },
   ],
 }

@@ -25,6 +25,9 @@
   },
   "dependencies": {
     "choo": "^4.1.0",
+    "verlet-constraint": "^1.1.0",
+    "verlet-point": "^1.2.1",
+    "verlet-system": "^1.0.15",
     "xtend": "^4.0.1"
   }
 }
