@@ -8,15 +8,20 @@ const pattern = {
     system: 'us',
   },
   measurements: {
-    'neck_base': 200,
-    'across_back_shoulder_neck_base_shoulder': 200,
-    'along_back_neck_base_to_gluteal_hip': 200,
-    'chest': 400,
-    'underbust': 350,
-    'mid_upper_arm_left': 200,
-    'shoulder_elbow_wrist_left': 400,
-    'shoulder_to_midhand_left': 380,
-    'wrist_left': 100,
+    base: [
+      {key: 'neck_base', value: 200},
+      {key: 'across_back_shoulder_neck_base_shoulder', value: 200},
+      {key: 'along_back_neck_base_to_gluteal_hip', value: 200},
+      {key: 'chest', value: 200},
+      {key: 'underbust', value: 200},
+      {key: 'mid_upper_arm_left', value: 200},
+      {key: 'shoulder_elbow_wrist_left', value: 200},
+      {key: 'shoulder_to_midhand_left', value: 200},
+      {key: 'wrist_left', value: 200},
+    ],
+    derived: [
+      
+    ]
   },
   parts: [
     {

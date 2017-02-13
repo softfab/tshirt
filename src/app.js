@@ -3,6 +3,7 @@ const choo = require('choo')
 const xtend = require('xtend')
 
 const olParts = require('./ol-parts')
+const olMeasurements = require('./ol-measurements')
 
 const model = {
   state: {
@@ -25,11 +26,19 @@ const model = {
 
 function mainView (state, prev, send) {
   const {pattern, selectedPart} = state
-  const {parts, id} = pattern
+  const {id, parts, measurements} = pattern
 
   return html`
     <main>
       <h1>${id}</h1>
+      <section>
+        <h2>base measurements</h2>
+        ${olMeasurements(measurements.base)}
+        todo: load from bodylabs
+        <h2>derived values</h2>
+        ${olMeasurements(measurements.derived)}
+        todo: add & edit
+      </section>
       <section>
         <h2>base part shapes</h2>
         ${olParts(parts, selectedPart, send)}
@@ -38,10 +47,6 @@ function mainView (state, prev, send) {
           <li>add parts</li>
           <li>edit path / drag points</li>
         </ul>
-      </section>
-      <section>
-        <h2>measurements and derived values</h2>
-        todo: add & edit
       </section>
       <section>
         <h2>constraints</h2>
@@ -53,8 +58,7 @@ function mainView (state, prev, send) {
       </section>
       <section>
         <h2>take over world</h2>
-        todo: site for sharing and commissioning
-
+        todo: site for sharing and commissioning (seamster?)
       </section>
       <section>
         <h2>debug</h2>
