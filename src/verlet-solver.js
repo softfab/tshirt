@@ -2,8 +2,9 @@
 // synchronous, not animated
 
 const System = require('verlet-system')
-const Constraint = require('verlet-constraint')
 const Point = require('verlet-point')
+const Constraint = require('verlet-constraint')
+const AngleConstraint = require('./verlet-constraint-angle-2d')
 
 
 function pointToVertex (point) {
@@ -23,7 +24,7 @@ function getDistance (constraint, measurements) {
   }
 }
 
-function mergeConstraint (vertices, mutable, constraint, measurements) {
+function mergeDistance (vertices, mutable, constraint, measurements) {
   const a = vertices[constraint.points[0]]
   const b = vertices[constraint.points[1]]
   const restingDistance = getDistance(constraint, measurements)
@@ -41,56 +42,59 @@ function mergeConstraint (vertices, mutable, constraint, measurements) {
   return mutable
 }
 
-function mergeConstraints (vertices, baseConstraints, constraints, measurements) {
+function mergeDistances (vertices, baseConstraints, distances, measurements) {
   let mutable = baseConstraints.slice()
-  const {distances, angles} = constraints
   for (let i = 0, len = distances.length; i < len; i++) {
-    mergeConstraint(vertices, mutable, distances[i], measurements)
+    mergeDistance(vertices, mutable, distances[i], measurements)
   }
   return mutable
 }
 
-function verticesToConstraints (vertices) {
-  const constraints = []
-  for (var i = 0, len = vertices.length; i < len; i++) {
-    // Distance and angle constraints from initial positions
+// Distance constraints from initial positions
+function verticesToDistances (vertices) {
+  const len = vertices.length
+  return vertices.map(function (vertex, i) {
     var a = i
-    var b = i + 1
-    var c = i + 2
-    if (b >= len) {
-      b = 0
-      c = 1
-    } else if (c >= len) {
-      c = 0
-    }
+    var b = (i + 1) % len
+    return new Constraint([vertices[a], vertices[b]], {stiffness: 0.2})
+  })
+}
 
-    constraints.push(
-      new Constraint([vertices[a], vertices[b]], {stiffness: 0.2})
-    )
-
-    // constraints.push(
-    //   new AngleConstraint(vertices[a], vertices[b], vertices[c], 0.9)
-    // )
-  }
-  return constraints
+// Angle constraints from initial positions
+function verticesToAngles (vertices) {
+  const len = vertices.length
+  return vertices.map(function (vertex, i) {
+    var a = i
+    var b = (i + 1) % len
+    var c = (i + 2) % len
+    return new AngleConstraint([vertices[a], vertices[b], vertices[c]], {stiffness: 0.9})
+  })
 }
 
 function solver (points, constraints, measurements) {
   const system = System()
   const systemVertices = points.map(pointToVertex)
-  const baseConstraints = verticesToConstraints(systemVertices)
-  const systemConstraints = mergeConstraints(systemVertices, baseConstraints, constraints, measurements)
+  const baseDistances = verticesToDistances(systemVertices)
+  const baseAngles = verticesToAngles(systemVertices)
+  const {distances, angles} = constraints
+  const systemConstraints = mergeDistances(systemVertices, baseDistances, distances, measurements)
 
   function tick() {
-      // Integrate the physics
-      system.integrate(systemVertices, 1000/60)
+    // Integrate the physics
+    system.integrate(systemVertices, 1000/60)
 
-      // Perform constraint solving
-      for (let i = 0, len = systemConstraints.length; i < len; i++) {
-        systemConstraints[i].solve()
-      }
+    // Distance constraint solving
+    for (let i = 0, len = systemConstraints.length; i < len; i++) {
+      systemConstraints[i].solve()
+    }
+
+    // Angle constraint solving
+    for (let i = 0, len = baseAngles.length; i < len; i++) {
+      baseAngles[i].solve()
+    }
   }
 
+  // Tick world synchronously
   for (let i = 0; i < 360; i++) {
     tick()
   }
