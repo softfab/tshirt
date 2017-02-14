@@ -14,13 +14,15 @@ const pattern = {
       {key: 'along_back_neck_base_to_gluteal_hip', value: 34},
       {key: 'chest', value: 200},
       {key: 'underbust', value: 200},
+      {key: 'waist', value: 200},
       {key: 'mid_upper_arm_left', value: 200},
       {key: 'shoulder_elbow_wrist_left', value: 200},
       {key: 'shoulder_to_midhand_left', value: 200},
       {key: 'wrist_left', value: 200},
     ],
     derived: [
-      
+      {key: 'half_chest', value: 'chest / 2'},
+      {key: 'half_waist', value: 'waist / 2'}
     ]
   },
   parts: [
@@ -41,8 +43,9 @@ const pattern = {
       ],
       constraints: {
         distances: [
-          // height
           {points: [0, 9], distance: 'along_back_neck_base_to_gluteal_hip'},
+          {points: [5, -5], distance: 'half_chest'},
+          {points: [6, -6], distance: 'half_waist'},
         ],
         angles: [
         ],

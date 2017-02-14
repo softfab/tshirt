@@ -6,7 +6,7 @@ const svgConstrained = function (part, measurements) {
   const {points, symmetry, constraints} = part
   const solved = solver(points, constraints, measurements)
 
-  return svgPoly(solved, symmetry, 500, 500)
+  return svgPoly(solved, constraints, symmetry, 500, 500)
 }
 
 module.exports = svgConstrained

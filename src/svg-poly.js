@@ -12,7 +12,27 @@ function line (a, b) {
   />`
 }
 
-function svgPoly (points, symmetry = false, width = 72, height = 72) {
+function lineDistance (distance, points) {
+
+}
+
+function arcAngle (angle, points) {
+
+}
+
+function gConstraints (points, constraints) {
+  const {distances, angles} = constraints
+  if ((!distances || !distances.length) && (!angles || !angles.length)) {
+    return null
+  }
+
+  return html`
+  <g>
+  </g>
+  `
+}
+
+function svgPoly (points, constraints = null, symmetry = false, width = 72, height = 72) {
   const lastIndex = points.length-1
   if (symmetry) {
     points = pointsWithSymmetry(points)
@@ -33,6 +53,7 @@ function svgPoly (points, symmetry = false, width = 72, height = 72) {
         fill="#fff" stroke="black" stroke-width="1"
       />
       ${symmetry && line(points[0], points[lastIndex])}
+      ${constraints && gConstraints(points, constraints)}
     </svg>
   `
 }

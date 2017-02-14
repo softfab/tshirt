@@ -15,7 +15,7 @@ const liPart = /*component({
       "
       onclick=${onClick}
     >
-      ${svgPoly(points, symmetry)}
+      ${svgPoly(points, null, symmetry)}
       ${id}
     </li>
     `

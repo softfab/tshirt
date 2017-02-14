@@ -4,6 +4,7 @@ const xtend = require('xtend')
 
 const olParts = require('./ol-parts')
 const olMeasurements = require('./ol-measurements')
+const olDerived = require('./ol-derived')
 const olConstraints = require('./ol-constraints')
 const svgConstrained = require('./svg-constrained')
 
@@ -39,7 +40,7 @@ function mainView (state, prev, send) {
         ${olMeasurements(measurements.base)}
         todo: load from bodylabs
         <h2>derived values</h2>
-        ${olMeasurements(measurements.derived)}
+        ${olDerived(measurements.derived)}
         todo: add & edit
       </section>
       <section>

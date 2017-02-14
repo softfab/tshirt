@@ -7,3 +7,4 @@ WIP - vector drawing + verlet physical constraints
 - [ ] Make it work
 - [ ] Make it right
 - [ ] Make it fast
+- [ ] Make it pretty
