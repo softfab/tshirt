@@ -1,5 +1,5 @@
 const html = require('choo/html')
-const svgPoly = require('./svg-poly')
+const svgPart = require('./svg-part')
 // const component = require('nanocomponent')
 
 const liPart = /*component({
@@ -15,7 +15,7 @@ const liPart = /*component({
       "
       onclick=${onClick}
     >
-      ${svgPoly(points, null, symmetry)}
+      ${svgPart(points, null, symmetry)}
       ${id}
     </li>
     `

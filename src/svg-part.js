@@ -32,7 +32,7 @@ function gConstraints (points, constraints) {
   `
 }
 
-function svgPoly (points, constraints = null, symmetry = false, width = 72, height = 72) {
+function svgPart (points, constraints = null, symmetry = false, width = 72, height = 72) {
   const lastIndex = points.length-1
   if (symmetry) {
     points = pointsWithSymmetry(points)
@@ -58,4 +58,4 @@ function svgPoly (points, constraints = null, symmetry = false, width = 72, heig
   `
 }
 
-module.exports = svgPoly
+module.exports = svgPart
