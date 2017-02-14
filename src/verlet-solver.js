@@ -4,15 +4,38 @@
 const System = require('verlet-system')
 const Point = require('verlet-point')
 const Constraint = require('verlet-constraint')
-const AngleConstraint = require('./verlet-constraint-angle-2d')
+const {AngleConstraint, rotate} = require('./verlet-constraint-angle-2d')
 
 
 function pointToVertex (point) {
-  return new Point({position: [point.x, point.y]})
+  return new Point({position: pointToPosition(point)})
+}
+
+function pointToPosition (point) {
+  return [point.x, point.y]
 }
 
 function vertexToPoint (vertex) {
-  return {x: vertex.position[0], y: vertex.position[1]}
+  return positionToPoint(vertex.position)
+}
+
+function positionToPoint (position) {
+  return {x: position[0], y: position[1]}
+}
+
+function verticesRotate (vertices, a1, b1, a2, b2) {
+  function vectorAngle (a, b) {
+    return Math.atan2(b[1] - a[1], b[0] - a[0])
+  }
+  const angle1 = vectorAngle(a1, b1)
+  const angle2 = vectorAngle(a2, b2)
+  const theta = angle1 - angle2
+  const x = (a2[0] + b2[0]) / 2
+  const y = (a2[1] + b2[1]) / 2
+  const origin = [x, y]
+  return vertices.map(function (vertex) {
+    return rotate(vertex.position, origin, theta)
+  })
 }
 
 function getDistance (constraint, measurements) {
@@ -112,9 +135,14 @@ function solver (points, constraints, measurements) {
     tick()
   }
 
-  console.log(systemAngles[systemAngles.length-1])
+  // HACK to fix rotation
+  const a1 = pointToPosition(points[0])
+  const b1 = pointToPosition(points[points.length - 1])
+  const a2 = baseVertices[0].position
+  const b2 = baseVertices[baseVertices.length - 1].position
+  const rotated = verticesRotate(baseVertices, a1, b1, a2, b2)
 
-  return baseVertices.map(vertexToPoint)
+  return rotated.map(positionToPoint)
 }
 
 module.exports = solver

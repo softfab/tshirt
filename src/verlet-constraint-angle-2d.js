@@ -64,4 +64,4 @@ AngleConstraint.prototype.solve = function (step = 60) {
   b.position = rotate(b.position, c.position, -diff)
 }
 
-module.exports = AngleConstraint
+module.exports = {AngleConstraint, rotate}
