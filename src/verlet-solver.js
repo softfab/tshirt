@@ -4,7 +4,9 @@
 const System = require('verlet-system')
 const Point = require('verlet-point')
 const Constraint = require('verlet-constraint')
+const Parser = require('expr-eval').Parser
 const {AngleConstraint, rotate} = require('./verlet-constraint-angle-2d')
+const {pointsWithSymmetry} = require('./geometry.js')
 
 
 function pointToVertex (point) {
@@ -39,23 +41,41 @@ function verticesRotate (vertices, a1, b1, a2, b2) {
 }
 
 function getDistance (constraint, measurements) {
-  for (let i = 0, len = measurements.base.length; i < len; i++) {
-    const {key, value} = measurements.base[i]
+  console.log(constraint, measurements)
+  const {base, derived} = measurements
+  let baseObj = {}
+  for (let i = 0, len = base.length; i < len; i++) {
+    const {key, value} = base[i]
     if (constraint.distance === key) {
       return value
     }
+    baseObj[key] = value
   }
+  // TODO cache these?
+  for (let i = 0, len = derived.length; i < len; i++) {
+    const {key, value} = derived[i]
+    if (constraint.distance === key) {
+      return Parser.evaluate(value, baseObj)
+    }
+  }
+  throw new Error('measurement not found')
 }
 
 function mergeDistance (vertices, mutable, constraint, measurements) {
-  const a = vertices[constraint.points[0]]
-  const b = vertices[constraint.points[1]]
+  // TODO support > 2
+  const constraintVertices = constraint.points.map(function (index) {
+    if (index < 0) {
+      index = vertices.length + index
+    }
+    return vertices[index]
+  })
   const restingDistance = getDistance(constraint, measurements)
-  const toMerge = new Constraint([a, b], {restingDistance, stiffness: 0.2})
+  console.log(restingDistance)
+  const toMerge = new Constraint(constraintVertices, {restingDistance, stiffness: 0.5})
 
   for (let i = 0, len = mutable.length; i < len; i++) {
     const base = mutable[i]
-    if (base.points[0] === a && base.points[1] === b) {
+    if (base.points[0] === constraintVertices[0] && base.points[1] === constraintVertices[1]) {
       mutable[i] = toMerge
       return mutable
     }
@@ -94,31 +114,27 @@ function verticesToAngles (vertices) {
   })
 }
 
-function solver (points, constraints, measurements) {
+function solver (points, constraints, symmetry, measurements) {
   const {distances, angles} = constraints
 
   if ((!distances || !distances.length) && (!angles || !angles.length)) {
     return points
   }
 
+  if (symmetry) {
+    points = pointsWithSymmetry(points)
+  }
+
   const system = System()
   const baseVertices = points.map(pointToVertex)
   const baseDistances = verticesToDistances(baseVertices)
-  const baseAngles = verticesToAngles(baseVertices)
   const mergedDistances = mergeDistances(baseVertices, baseDistances, distances, measurements)
-
-  // // Prepend a pin to maintain basic orientation
-  // const pinVertex = new Point({position: [points[0].x, points[0].y-100]})
-  // const pinDistance = new Constraint([pinVertex, baseVertices[0]], {stiffness: 1.0})
-  // const pinAngle = new AngleConstraint([pinVertex, baseVertices[0], baseVertices[1]], {stiffness: 1.0})
-
-  // const systemVertices = [pinVertex].concat(baseVertices)
-  // const systemDistances = [pinDistance].concat(mergedDistances)
-  // const systemAngles = [pinAngle].concat(baseAngles)
+  const baseAngles = verticesToAngles(baseVertices)
+  const mergedAngles = baseAngles
 
   const systemVertices = baseVertices
   const systemDistances = mergedDistances
-  const systemAngles = baseAngles
+  const systemAngles = mergedAngles
 
   function tick() {
     // Integrate the physics

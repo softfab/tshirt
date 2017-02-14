@@ -39,6 +39,14 @@ function pointsWithSymmetry (points) {
   return simPoints
 }
 
+// function pointsTranslate (points, p1, p2) {
+//   const dx = p2.x - p1.x
+//   const dy = p2.y - p1.y
+//   return points.map(function (point) {
+//     return {x: point.x + x, y: point.y + y}
+//   })
+// }
+
 function pointsFit (points, fitWidth, fitHeight, padding = 4) {
   fitWidth -= padding * 2
   fitHeight -= padding * 2

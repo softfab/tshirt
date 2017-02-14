@@ -4,7 +4,7 @@ const solver = require('./verlet-solver')
 
 const svgConstrained = function (part, measurements) {
   const {points, symmetry, constraints} = part
-  const solved = solver(points, constraints, measurements)
+  const solved = solver(points, constraints, symmetry, measurements)
 
   return svgPart(solved, constraints, symmetry, 500, 500)
 }

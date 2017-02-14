@@ -22,7 +22,7 @@ const pattern = {
     ],
     derived: [
       {key: 'half_chest', value: 'chest / 2'},
-      {key: 'half_waist', value: 'waist / 2'}
+      {key: 'half_waist', value: 'waist / 2'},
     ]
   },
   parts: [
