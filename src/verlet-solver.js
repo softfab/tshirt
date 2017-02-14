@@ -121,6 +121,9 @@ function solver (points, constraints, symmetry, measurements) {
     return points
   }
 
+  const inputPoints = points.slice()
+  const inputLength = inputPoints.length
+
   if (symmetry) {
     points = pointsWithSymmetry(points)
   }
@@ -157,11 +160,12 @@ function solver (points, constraints, symmetry, measurements) {
   }
 
   // HACK to fix rotation
-  const a1 = pointToPosition(points[0])
-  const b1 = pointToPosition(points[points.length - 1])
-  const a2 = baseVertices[0].position
-  const b2 = baseVertices[baseVertices.length - 1].position
-  const rotated = verticesRotate(baseVertices, a1, b1, a2, b2)
+  const a1 = pointToPosition(inputPoints[0])
+  const b1 = pointToPosition(inputPoints[inputLength - 1])
+  const outVertices = baseVertices.slice(0, inputLength - 1)
+  const a2 = outVertices[0].position
+  const b2 = outVertices[outVertices.length - 1].position
+  const rotated = verticesRotate(outVertices, a1, b1, a2, b2)
 
   return rotated.map(positionToPoint)
 }

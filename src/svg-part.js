@@ -52,8 +52,8 @@ function svgPart (points, constraints = null, symmetry = false, width = 72, heig
         d="${dClosed(points)}"
         fill="#fff" stroke="black" stroke-width="1"
       />
-      ${symmetry && line(points[0], points[lastIndex])}
       ${constraints && gConstraints(points, constraints)}
+      ${symmetry && line(points[0], points[lastIndex])}
     </svg>
   `
 }
