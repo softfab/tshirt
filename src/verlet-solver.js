@@ -95,11 +95,16 @@ function verticesToAngles (vertices) {
 }
 
 function solver (points, constraints, measurements) {
+  const {distances, angles} = constraints
+
+  if ((!distances || !distances.length) && (!angles || !angles.length)) {
+    return points
+  }
+
   const system = System()
   const baseVertices = points.map(pointToVertex)
   const baseDistances = verticesToDistances(baseVertices)
   const baseAngles = verticesToAngles(baseVertices)
-  const {distances, angles} = constraints
   const mergedDistances = mergeDistances(baseVertices, baseDistances, distances, measurements)
 
   // // Prepend a pin to maintain basic orientation
