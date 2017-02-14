@@ -43,6 +43,10 @@ AngleConstraint.prototype.solve = function (step = 60) {
   const b = this.points[1]
   const c = this.points[2]
 
+  // const aMass = typeof a.mass === 'number' ? a.mass : 1
+  // const bMass = typeof b.mass === 'number' ? b.mass : 1
+  // const cMass = typeof c.mass === 'number' ? c.mass : 1
+
   const angle = angle2(a.position, b.position, c.position)
   let diff = angle - this.restingAngle
 
@@ -56,39 +60,8 @@ AngleConstraint.prototype.solve = function (step = 60) {
 
   a.position = rotate(a.position, b.position, diff)
   c.position = rotate(c.position, b.position, -diff)
-	b.position = rotate(b.position, a.position, diff)
-	b.position = rotate(b.position, c.position, -diff)
+  b.position = rotate(b.position, a.position, diff)
+  b.position = rotate(b.position, c.position, -diff)
 }
 
 module.exports = AngleConstraint
-
-/*
-
-function AngleConstraint(a, b, c, stiffness) {
-	this.a = a;
-	this.b = b;
-	this.c = c;
-	this.angle = this.b.pos.angle2(this.a.pos, this.c.pos);
-	this.stiffness = stiffness;
-}
-
-AngleConstraint.prototype.relax = function(stepCoef) {
-	var angle = this.b.pos.angle2(this.a.pos, this.c.pos);
-	var diff = angle - this.angle;
-	
-	if (diff <= -Math.PI)
-		diff += 2*Math.PI;
-	else if (diff >= Math.PI)
-		diff -= 2*Math.PI;
-
-	diff *= stepCoef*this.stiffness;
-	
-	this.a.pos = this.a.pos.rotate(this.b.pos, diff);
-	this.c.pos = this.c.pos.rotate(this.b.pos, -diff);
-	this.b.pos = this.b.pos.rotate(this.a.pos, diff);
-	this.b.pos = this.b.pos.rotate(this.c.pos, -diff);
-}
-
-module.exports = AngleConstraint
-
-*/

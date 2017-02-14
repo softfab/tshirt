@@ -73,24 +73,37 @@ function verticesToAngles (vertices) {
 
 function solver (points, constraints, measurements) {
   const system = System()
-  const systemVertices = points.map(pointToVertex)
-  const baseDistances = verticesToDistances(systemVertices)
-  const baseAngles = verticesToAngles(systemVertices)
+  const baseVertices = points.map(pointToVertex)
+  const baseDistances = verticesToDistances(baseVertices)
+  const baseAngles = verticesToAngles(baseVertices)
   const {distances, angles} = constraints
-  const systemConstraints = mergeDistances(systemVertices, baseDistances, distances, measurements)
+  const mergedDistances = mergeDistances(baseVertices, baseDistances, distances, measurements)
+
+  // // Prepend a pin to maintain basic orientation
+  // const pinVertex = new Point({position: [points[0].x, points[0].y-100]})
+  // const pinDistance = new Constraint([pinVertex, baseVertices[0]], {stiffness: 1.0})
+  // const pinAngle = new AngleConstraint([pinVertex, baseVertices[0], baseVertices[1]], {stiffness: 1.0})
+
+  // const systemVertices = [pinVertex].concat(baseVertices)
+  // const systemDistances = [pinDistance].concat(mergedDistances)
+  // const systemAngles = [pinAngle].concat(baseAngles)
+
+  const systemVertices = baseVertices
+  const systemDistances = mergedDistances
+  const systemAngles = baseAngles
 
   function tick() {
     // Integrate the physics
-    system.integrate(systemVertices, 1000/60)
+    system.integrate(baseVertices, 1000/60)
 
     // Distance constraint solving
-    for (let i = 0, len = systemConstraints.length; i < len; i++) {
-      systemConstraints[i].solve()
+    for (let i = 0, len = systemDistances.length; i < len; i++) {
+      systemDistances[i].solve()
     }
 
     // Angle constraint solving
-    for (let i = 0, len = baseAngles.length; i < len; i++) {
-      baseAngles[i].solve()
+    for (let i = 0, len = systemAngles.length; i < len; i++) {
+      systemAngles[i].solve()
     }
   }
 
@@ -99,7 +112,9 @@ function solver (points, constraints, measurements) {
     tick()
   }
 
-  return systemVertices.map(vertexToPoint)
+  console.log(systemAngles[systemAngles.length-1])
+
+  return baseVertices.map(vertexToPoint)
 }
 
 module.exports = solver

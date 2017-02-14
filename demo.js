@@ -11,7 +11,7 @@ const pattern = {
     base: [
       {key: 'neck_base', value: 200},
       {key: 'across_back_shoulder_neck_base_shoulder', value: 200},
-      {key: 'along_back_neck_base_to_gluteal_hip', value: 35.0},
+      {key: 'along_back_neck_base_to_gluteal_hip', value: 34},
       {key: 'chest', value: 200},
       {key: 'underbust', value: 200},
       {key: 'mid_upper_arm_left', value: 200},
