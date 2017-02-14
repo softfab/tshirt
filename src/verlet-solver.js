@@ -71,7 +71,7 @@ function mergeDistance (vertices, mutable, constraint, measurements) {
   })
   const restingDistance = getDistance(constraint, measurements)
   console.log(restingDistance)
-  const toMerge = new Constraint(constraintVertices, {restingDistance, stiffness: 0.5})
+  const toMerge = new Constraint(constraintVertices, {restingDistance, stiffness: 0.9})
 
   for (let i = 0, len = mutable.length; i < len; i++) {
     const base = mutable[i]
@@ -110,7 +110,7 @@ function verticesToAngles (vertices) {
     var a = i
     var b = (i + 1) % len
     var c = (i + 2) % len
-    return new AngleConstraint([vertices[a], vertices[b], vertices[c]], {stiffness: 0.9})
+    return new AngleConstraint([vertices[a], vertices[b], vertices[c]], {stiffness: 0.5})
   })
 }
 

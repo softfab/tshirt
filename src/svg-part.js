@@ -13,14 +13,19 @@ function line (a, b) {
 }
 
 function lineDistance (distance, points) {
-
+  let a = distance.points[0]
+  if (a < 0) a = points.length + a
+  let b = distance.points[1]
+  if (b < 0) b = points.length + b
+  console.log(points[a], points[b], points, a, b)
+  return line(points[a], points[b])
 }
 
 function arcAngle (angle, points) {
 
 }
 
-function gConstraints (points, constraints) {
+function gConstraints (constraints, points) {
   const {distances, angles} = constraints
   if ((!distances || !distances.length) && (!angles || !angles.length)) {
     return null
@@ -28,6 +33,8 @@ function gConstraints (points, constraints) {
 
   return html`
   <g>
+    ${distances && distances.map(function (distance) { return lineDistance(distance, points) })}
+    ${angles && angles.map(function (angle) { return arcAngle(angle, points) })}
   </g>
   `
 }
@@ -52,7 +59,7 @@ function svgPart (points, constraints = null, symmetry = false, width = 72, heig
         d="${dClosed(points)}"
         fill="#fff" stroke="black" stroke-width="1"
       />
-      ${constraints && gConstraints(points, constraints)}
+      ${constraints && gConstraints(constraints, points)}
       ${symmetry && line(points[0], points[lastIndex])}
     </svg>
   `
