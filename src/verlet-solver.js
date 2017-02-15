@@ -9,8 +9,10 @@ const {AngleConstraint, rotate} = require('./verlet-constraint-angle-2d')
 const {pointsWithSymmetry} = require('./geometry.js')
 
 
-function pointToVertex (point) {
-  return new Point({position: pointToPosition(point)})
+function pointToVertex (point, index) {
+  const p = new Point({position: pointToPosition(point)})
+  p.index = index
+  return p
 }
 
 function pointToPosition (point) {
@@ -108,7 +110,7 @@ function verticesToAngles (vertices) {
     var a = i
     var b = (i + 1) % len
     var c = (i + 2) % len
-    return new AngleConstraint([vertices[a], vertices[b], vertices[c]], {stiffness: 0.2})
+    return new AngleConstraint([vertices[a], vertices[b], vertices[c]], {stiffness: 0.5})
   })
 }
 
@@ -116,7 +118,8 @@ function solver (points, constraints, symmetry, measurements, steps = 360) {
   const {distances, angles} = constraints
 
   if ((!distances || !distances.length) && (!angles || !angles.length)) {
-    return points
+    // Short-circuit
+    return {systemPoints: points}
   }
 
   const inputPoints = points.slice()
@@ -160,13 +163,16 @@ function solver (points, constraints, symmetry, measurements, steps = 360) {
   // HACK to fix rotation
   const a1 = pointToPosition(inputPoints[0])
   const b1 = pointToPosition(inputPoints[inputLength - 1])
-  const outVertices = baseVertices.slice(0, inputLength - 1)
+  const outVertices = baseVertices.slice(0, inputLength - 0)
   const a2 = outVertices[0].position
   const b2 = outVertices[outVertices.length - 1].position
-  const rotated = verticesRotate(outVertices, a1, b1, a2, b2)
+  const rotated = verticesRotate(baseVertices, a1, b1, a2, b2)
 
-  // return rotated.map(positionToPoint)
-  return baseVertices.map(vertexToPoint)
+  return {
+    systemPoints: rotated.map(positionToPoint),
+    systemDistances,
+    systemAngles,
+  }
 }
 
 module.exports = solver

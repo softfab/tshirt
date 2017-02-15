@@ -20,8 +20,28 @@ function lineDistance (distance, points) {
   return line(points[a], points[b])
 }
 
-function arcAngle (angle, points) {
+function arcAngle (systemAngle, points) {
+  const {restingAngle, angle} = systemAngle
+  const b = points[systemAngle.points[1].index]
+  let fill = 'transparent'
+  if (angle != null) {
+    const diff = restingAngle - angle
+    const alpha = Math.abs(diff) / Math.PI
+    fill = `rgba(255,0,0,${alpha})`
+  }
+  return html`
+  <g>
+    <circle cx="${b.x}" cy="${b.y}" r="10" fill="${fill}" stroke="black" />
+  </g>
+  `
+}
 
+function gAngles (systemAngles, points) {
+  return html`
+  <g>
+    ${systemAngles.map(function (angle) { return arcAngle(angle, points) })}
+  </g>
+  `
 }
 
 function gConstraints (constraints, points) {
@@ -38,7 +58,7 @@ function gConstraints (constraints, points) {
   `
 }
 
-function svgPart (points, constraints = null, symmetry = false, width = 72, height = 72) {
+function svgPart (points, constraints = null, symmetry = false, width = 72, height = 72, systemDistances = null, systemAngles = null) {
   const lastIndex = points.length-1
   // if (symmetry) {
   //   points = pointsWithSymmetry(points)
@@ -60,6 +80,7 @@ function svgPart (points, constraints = null, symmetry = false, width = 72, heig
       />
       ${constraints && gConstraints(constraints, points)}
       ${symmetry && line(points[0], points[lastIndex])}
+      ${systemAngles && gAngles(systemAngles, points)}
     </svg>
   `
 }
