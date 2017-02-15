@@ -17,7 +17,6 @@ function lineDistance (distance, points) {
   if (a < 0) a = points.length + a
   let b = distance.points[1]
   if (b < 0) b = points.length + b
-  console.log(points[a], points[b], points, a, b)
   return line(points[a], points[b])
 }
 
@@ -41,9 +40,9 @@ function gConstraints (constraints, points) {
 
 function svgPart (points, constraints = null, symmetry = false, width = 72, height = 72) {
   const lastIndex = points.length-1
-  if (symmetry) {
-    points = pointsWithSymmetry(points)
-  }
+  // if (symmetry) {
+  //   points = pointsWithSymmetry(points)
+  // }
   points = pointsFit(points, width, height)
   return html`
     <svg

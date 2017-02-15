@@ -10,8 +10,8 @@ const olConstraints = require('./ol-constraints')
 const svgConstrained = require('./svg-constrained')
 
 const prefix = css`
-  @media all and (min-width: 1024px) {
-    section {
+  @media all and (min-width: 950px) {
+    :host section {
       float: left;
       width: 30%;
     }
@@ -23,6 +23,7 @@ const model = {
     pattern: {},
     selectedPart: 0,
     selectedPoint: null,
+    solverSteps: 360,
   },
   reducers: {
     selectPart: function (state, data) {
@@ -31,14 +32,29 @@ const model = {
     selectPoint: function (state, data) {
       return { selectPoint: data }
     },
-    update: function (state, data) {
-      return { title: data }
+    setMeasurement: function (state, data) {
+      let {pattern} = state
+      const base = pattern.measurements.base.slice()
+      const {key, value} = data
+      for (let i = 0, len = base.length; i < len; i++) {
+        const measurement = base[i]
+        if (measurement.key === key) {
+          // ?
+          base[i] = {key, value}
+        }
+      }
+      pattern.measurements.base = base
+      pattern = xtend(pattern, {})
+      return {pattern}
+    },
+    setState: function (state, data) {
+      return data
     }
   }
 }
 
 function mainView (state, prev, send) {
-  const {pattern, selectedPart} = state
+  const {pattern, selectedPart, solverSteps} = state
   const {id, parts, measurements} = pattern
 
   return html`
@@ -46,7 +62,7 @@ function mainView (state, prev, send) {
       <h1>${id}</h1>
       <section>
         <h2>base measurements</h2>
-        ${olMeasurements(measurements.base)}
+        ${olMeasurements(measurements.base, send)}
         todo: load from bodylabs
         <h2>derived values</h2>
         ${olDerived(measurements.derived)}
@@ -65,7 +81,7 @@ function mainView (state, prev, send) {
       </section>
       <section>
         <h2>solved shape</h2>
-        ${(selectedPart != null) && svgConstrained(parts[selectedPart], measurements)}
+        ${(selectedPart != null) && svgConstrained(parts[selectedPart], measurements, solverSteps, send)}
         todo: select points in selected part, add/edit distance/angle constraints
       </section>
       <section>
@@ -78,14 +94,10 @@ function mainView (state, prev, send) {
       </section>
       <section>
         <h2>debug</h2>
-        <pre style="max-height: 50vh; overflow: auto;">${JSON.stringify(state.pattern, null, 2)}</pre>
+        <pre style="max-height: 50vh; overflow: auto;">${JSON.stringify(state, null, 2)}</pre>
       </section>
     </main>
   `
-
-  function update (e) {
-    send('update', e.target.value)
-  }
 }
 
 function startApp (initialState) {

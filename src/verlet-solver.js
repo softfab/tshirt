@@ -41,7 +41,6 @@ function verticesRotate (vertices, a1, b1, a2, b2) {
 }
 
 function getDistance (constraint, measurements) {
-  console.log(constraint, measurements)
   const {base, derived} = measurements
   let baseObj = {}
   for (let i = 0, len = base.length; i < len; i++) {
@@ -70,7 +69,6 @@ function mergeDistance (vertices, mutable, constraint, measurements) {
     return vertices[index]
   })
   const restingDistance = getDistance(constraint, measurements)
-  console.log(restingDistance)
   const toMerge = new Constraint(constraintVertices, {restingDistance, stiffness: 0.9})
 
   for (let i = 0, len = mutable.length; i < len; i++) {
@@ -114,7 +112,7 @@ function verticesToAngles (vertices) {
   })
 }
 
-function solver (points, constraints, symmetry, measurements) {
+function solver (points, constraints, symmetry, measurements, steps = 360) {
   const {distances, angles} = constraints
 
   if ((!distances || !distances.length) && (!angles || !angles.length)) {
@@ -155,7 +153,7 @@ function solver (points, constraints, symmetry, measurements) {
   }
 
   // Tick world synchronously
-  for (let i = 0; i < 360; i++) {
+  for (let i = 0; i < steps; i++) {
     tick()
   }
 
@@ -167,7 +165,8 @@ function solver (points, constraints, symmetry, measurements) {
   const b2 = outVertices[outVertices.length - 1].position
   const rotated = verticesRotate(outVertices, a1, b1, a2, b2)
 
-  return rotated.map(positionToPoint)
+  // return rotated.map(positionToPoint)
+  return baseVertices.map(vertexToPoint)
 }
 
 module.exports = solver
