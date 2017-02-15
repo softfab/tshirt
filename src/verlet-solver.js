@@ -99,7 +99,7 @@ function verticesToDistances (vertices) {
   return vertices.map(function (vertex, i) {
     var a = i
     var b = (i + 1) % len
-    return new Constraint([vertices[a], vertices[b]], {stiffness: 0.2})
+    return new Constraint([vertices[a], vertices[b]], {stiffness: 0.1})
   })
 }
 
@@ -110,7 +110,7 @@ function verticesToAngles (vertices) {
     var a = i
     var b = (i + 1) % len
     var c = (i + 2) % len
-    return new AngleConstraint([vertices[a], vertices[b], vertices[c]], {stiffness: 0.5})
+    return new AngleConstraint([vertices[a], vertices[b], vertices[c]], {stiffness: 0.2})
   })
 }
 
