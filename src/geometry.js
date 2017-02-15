@@ -27,10 +27,14 @@ function pointReflect (p, p0, p1) {
 }
 
 function pointsWithSymmetry (points) {
+  if (points.length < 3) {
+    throw new Error('Need more than 2 points for symmetry')
+  }
   const simPoints = points.slice()
   const a = points[0]
   const b = points[points.length-1]
-  let i = points.length - 1
+  // O_o (off-by-one man was here) o_O
+  let i = points.length - 2
   while (i > 0) {
     const point = points[i]
     simPoints.push(pointReflect(point, a, b))
