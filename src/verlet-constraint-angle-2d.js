@@ -48,7 +48,6 @@ AngleConstraint.prototype.solve = function (step = 60) {
   // const cMass = typeof c.mass === 'number' ? c.mass : 1
 
   const angle = angle2(a.position, b.position, c.position)
-  this.angle = angle
   let diff = angle - this.restingAngle
 
 	if (diff <= -Math.PI) {
@@ -56,6 +55,9 @@ AngleConstraint.prototype.solve = function (step = 60) {
   } else if (diff >= Math.PI) {
 		diff -= 2*Math.PI
   }
+
+  this.angle = angle
+  this.diff = diff
 
   diff *= this.stiffness * (1 / step)
 

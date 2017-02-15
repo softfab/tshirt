@@ -76,4 +76,27 @@ function dClosed (points) {
   return path
 }
 
-module.exports = {pointsFit, pointsWithSymmetry, dClosed}
+function distanceBetween (a, b) {
+  var aSquared = Math.pow((a.x - b.x), 2)
+  var bSquared = Math.pow((a.y - b.y), 2)
+  return Math.sqrt(aSquared + bSquared)
+}
+
+function unitVector (a, b, mult = 1) {
+  const dx = b.x - a.x
+  const dy = b.y - a.y
+  const d = distanceBetween(a, b)
+  return {
+    x: dx / d * mult,
+    y: dy / d * mult,
+  }
+}
+
+function pointAdd (a, b) {
+  return {
+    x: a.x + b.x,
+    y: a.y + b.y,
+  }
+}
+
+module.exports = {pointsFit, pointsWithSymmetry, dClosed, unitVector, pointAdd}

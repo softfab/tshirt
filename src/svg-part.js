@@ -1,5 +1,5 @@
 const html = require('choo/html')
-const {pointsFit, pointsWithSymmetry, dClosed} = require('./geometry.js')
+const {pointsFit, pointsWithSymmetry, dClosed, unitVector, pointAdd} = require('./geometry.js')
 
 function line (a, b) {
   return html`<line
@@ -21,17 +21,23 @@ function lineDistance (distance, points) {
 }
 
 function arcAngle (systemAngle, points) {
-  const {restingAngle, angle} = systemAngle
+  const {restingAngle, angle, diff} = systemAngle
+  const a = points[systemAngle.points[0].index]
   const b = points[systemAngle.points[1].index]
+  const c = points[systemAngle.points[2].index]
   let fill = 'transparent'
   if (angle != null) {
-    const diff = restingAngle - angle
     const alpha = Math.abs(diff) / Math.PI
     fill = `rgba(255,0,0,${alpha})`
+    if (alpha > 0.5) { console.log(restingAngle, angle) }
   }
+  const angleStart = pointAdd(unitVector(b, a, 10), b)
+  const angleEnd = pointAdd(unitVector(b, c, 10), b)
+  const largeArc = (angle || restingAngle) > Math.PI/2 ? 1 : 0
   return html`
   <g>
-    <circle cx="${b.x}" cy="${b.y}" r="10" fill="${fill}" stroke="black" />
+    <path d="M ${b.x} ${b.y} L ${angleStart.x} ${angleStart.y} A 10 10 0 ${largeArc} 0 ${angleEnd.x} ${angleEnd.y} Z" stroke="black" fill="${fill}" />
+    <circle cx="${b.x}" cy="${b.y}" r="3" fill="none" stroke="black" />
   </g>
   `
 }
