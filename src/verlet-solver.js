@@ -6,7 +6,7 @@ const Point = require('verlet-point')
 const Constraint = require('verlet-constraint')
 const Parser = require('expr-eval').Parser
 const {AngleConstraint, rotate} = require('./verlet-constraint-angle-2d')
-const {pointsWithSymmetry} = require('./geometry.js')
+const {pointsWithSymmetry, distanceBetween} = require('./geometry.js')
 
 
 function pointToVertex (point, index) {
@@ -55,33 +55,63 @@ function getDistance (constraint, measurements) {
   // TODO cache these?
   for (let i = 0, len = derived.length; i < len; i++) {
     const {key, value} = derived[i]
+    baseObj[key] = Parser.evaluate(value, baseObj)
     if (constraint.distance === key) {
-      return Parser.evaluate(value, baseObj)
+      return baseObj[key]
     }
   }
   throw new Error('measurement not found')
 }
 
+function mutableMergeConstraint(mutable, constraint) {
+  const mA = constraint.points[0]
+  const mB = constraint.points[1]
+  for (let i = 0, len = mutable.length; i < len; i++) {
+    const base = mutable[i]
+    const bA = base.points[0]
+    const bB = base.points[1]
+    if ((bA === mA && bB === mB) || (bA === mB && bB === mA)) {
+      mutable[i] = constraint
+      return
+    }
+  }
+  mutable.push(constraint)
+}
+
 function mergeDistance (vertices, mutable, constraint, measurements) {
-  // TODO support > 2
   const constraintVertices = constraint.points.map(function (index) {
     if (index < 0) {
       index = vertices.length + index
     }
     return vertices[index]
   })
-  const restingDistance = getDistance(constraint, measurements)
-  const toMerge = new Constraint(constraintVertices, {restingDistance, stiffness: 0.9})
+  let distances = []
+  const baseDistance = constraintVertices.reduce(function (acc, vertex, index) {
+    const a = vertex
+    const b = constraintVertices[index+1]
+    if (!a || !b) return acc
+    const aPoint = {x: a.position[0], y: a.position[1]}
+    const bPoint = {x: b.position[0], y: b.position[1]}
+    const d = distanceBetween(aPoint, bPoint)
+    distances[index] = d
+    return acc + d
+  }, 0)
+  const baseRatios = distances.map(function (distance) {
+    return distance / baseDistance
+  })
+  const restDistance = getDistance(constraint, measurements)
+  const restDistances = baseRatios.map(function (ratio) {
+    return restDistance * ratio
+  })
 
-  for (let i = 0, len = mutable.length; i < len; i++) {
-    const base = mutable[i]
-    if (base.points[0] === constraintVertices[0] && base.points[1] === constraintVertices[1]) {
-      mutable[i] = toMerge
-      return mutable
-    }
+  for (let i = 0, len = restDistances.length; i < len; i++) {
+    const restingDistance = restDistances[i]
+    const a = constraintVertices[i]
+    const b = constraintVertices[i+1]
+    const toMerge = new Constraint([a, b], {restingDistance, stiffness: 0.9})
+    mutableMergeConstraint(mutable, toMerge)
   }
 
-  mutable.push(toMerge)
   return mutable
 }
 

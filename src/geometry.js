@@ -99,4 +99,4 @@ function pointAdd (a, b) {
   }
 }
 
-module.exports = {pointsFit, pointsWithSymmetry, dClosed, unitVector, pointAdd}
+module.exports = {pointsFit, pointsWithSymmetry, dClosed, distanceBetween, unitVector, pointAdd}
