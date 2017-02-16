@@ -1,0 +1,12 @@
+@media all and (min-width: 950px) {
+    ._44855693 section {
+      float: left;
+      width: 30%;
+    }
+  }
+._f20ced55 input.spinner {
+    width: 3rem;
+  }
+  ._f20ced55 input.slider {
+    width: 100%;
+  }

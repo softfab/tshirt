@@ -6,7 +6,7 @@
   "scripts": {
     "start": "bankai start demo.js --debug",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "bankai build demo.js build/"
+    "build": "bankai build demo.js demo/"
   },
   "repository": {
     "type": "git",
