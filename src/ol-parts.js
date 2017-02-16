@@ -4,7 +4,7 @@ const svgPart = require('./svg-part')
 
 const liPart = /*component({
   render:*/ function (part, index, selected, send) {
-    const {points, symmetry, id} = part
+    const {points, constraints, symmetry, id} = part
     function onClick () {
       send('selectPart', index)
     }
@@ -15,7 +15,7 @@ const liPart = /*component({
       "
       onclick=${onClick}
     >
-      ${svgPart(points, null, symmetry)}
+      ${svgPart(points, symmetry)}
       ${id}
     </li>
     `

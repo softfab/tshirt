@@ -166,7 +166,7 @@ function solver (points, constraints, symmetry, measurements, steps = 360) {
   const outVertices = baseVertices.slice(0, inputLength - 0)
   const a2 = outVertices[0].position
   const b2 = outVertices[outVertices.length - 1].position
-  const rotated = verticesRotate(baseVertices, a1, b1, a2, b2)
+  const rotated = verticesRotate(outVertices, a1, b1, a2, b2)
 
   return {
     systemPoints: rotated.map(positionToPoint),

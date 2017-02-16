@@ -71,7 +71,7 @@ const pattern = {
       constraints: {
         distances: [
           {points: [0, 8], distance: 'along_back_neck_base_to_gluteal_hip'},
-          {points: [3, -3], distance: 'half_chest'},
+          {points: [5, -5], distance: 'half_chest'},
         ],
         angles: [],
       }

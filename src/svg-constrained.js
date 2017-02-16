@@ -14,7 +14,7 @@ const svgConstrained = function (part, measurements, solverSteps, send) {
   return html`
     <div>
       <input type="range" min="0" max="360" value="${solverSteps}" oninput=${onInput} style="width: 500px;" />
-      ${svgPart(systemPoints, constraints, symmetry, 500, 500, systemDistances, systemAngles)}
+      ${svgPart(systemPoints, symmetry, constraints, 500, 500, systemDistances, systemAngles)}
     </div>
   `
 }
