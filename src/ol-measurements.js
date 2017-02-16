@@ -2,10 +2,14 @@ const html = require('choo/html')
 const css = require('sheetify')
 
 const prefix = css`
-  :host input {
+  :host input.spinner {
     width: 3rem;
   }
+  :host input.slider {
+    width: 100%;
+  }
 `
+
 
 const liMeasurement = function (measurement, index) {
   const {key, value} = measurement
@@ -21,7 +25,16 @@ const liMeasurement = function (measurement, index) {
   <li>
     <label>
       ${key}
-      <input type="number" value="${value}" oninput=${onInput} />
+      <input type="number" class="spinner"
+        value="${value}"
+        oninput=${onInput}
+      />
+      <input type="range" class="slider"
+        value="${value}"
+        min="0" max="${Math.max(value, 200)}"
+        step="0.125"
+        oninput=${onInput}
+      />
     </label>
   </li>
   `
