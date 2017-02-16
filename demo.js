@@ -9,22 +9,28 @@ const pattern = {
   },
   measurements: {
     base: [
-      {key: 'neck_base', value: 200},
-      {key: 'across_back_shoulder_neck_base_shoulder', value: 200},
+      {key: 'neck_base', value: 28},
+      {key: 'across_back_shoulder_neck_base_shoulder', value: 10},
       {key: 'along_back_neck_base_to_gluteal_hip', value: 30},
       {key: 'chest', value: 50},
-      {key: 'underbust', value: 200},
+      // {key: 'underbust', value: 200},
       {key: 'waist', value: 45},
       {key: 'hips', value: 50},
-      {key: 'mid_upper_arm_left', value: 200},
-      {key: 'shoulder_elbow_wrist_left', value: 200},
-      {key: 'shoulder_to_midhand_left', value: 200},
-      {key: 'wrist_left', value: 200},
+      {key: 'mid_upper_arm_left', value: 30},
+      {key: 'maximum_forearm_left', value: 20},
+      {key: 'shoulder_elbow_wrist_left', value: 38},
+      {key: 'shoulder_to_midhand_left', value: 36},
+      {key: 'wrist_left', value: 15},
     ],
     derived: [
       {key: 'half_chest', value: 'chest / 2'},
       {key: 'half_waist', value: 'waist / 2'},
       {key: 'half_hips', value: 'hips / 2'},
+      {key: 'third_neck', value: 'neck_base / 3'},
+      {key: 'third_wrist', value: 'wrist_left / 3'},
+      {key: 'around_shoulder', value: 'mid_upper_arm_left * 1.1'},
+      {key: 'half_shoulder', value: 'around_shoulder / 2'},
+      {key: 'quarter_shoulder', value: 'around_shoulder / 4'},
     ]
   },
   parts: [
@@ -49,6 +55,8 @@ const pattern = {
           {points: [5, -5], distance: 'half_chest'},
           {points: [6, -6], distance: 'half_waist'},
           {points: [7, -7], distance: 'half_hips'},
+          {points: [1, 0, -1], distance: 'third_neck'},
+          {points: [2, 3, 4, 5], distance: 'quarter_shoulder'},
         ],
         angles: [
         ],
@@ -72,6 +80,10 @@ const pattern = {
         distances: [
           {points: [0, 8], distance: 'along_back_neck_base_to_gluteal_hip'},
           {points: [5, -5], distance: 'half_chest'},
+          {points: [3, -3], distance: 'half_waist'},
+          {points: [2, -2], distance: 'half_hips'},
+          {points: [5, 6, 7], distance: 'quarter_shoulder'},
+          {points: [7, 8], distance: 'across_back_shoulder_neck_base_shoulder'},
         ],
         angles: [],
       }
@@ -92,7 +104,10 @@ const pattern = {
         {x: 7.0, y: -2.0},
       ],
       constraints: {
-        distances: [],
+        distances: [
+          {points: [4, 5], distance: 'third_wrist'},
+          {points: [0, 1, 2], distance: 'quarter_shoulder'},
+        ],
         angles: [],
       }
     },
@@ -113,7 +128,10 @@ const pattern = {
         {x: 4.0, y: 1.0 },
       ],
       constraints: {
-        distances: [],
+        distances: [
+          {points: [6, 7], distance: 'third_wrist'},
+          {points: [0, 1, 2], distance: 'quarter_shoulder'},
+        ],
         angles: [],
       }
     },
@@ -137,7 +155,14 @@ const pattern = {
         {x: 1.0, y: 7.0},
       ],
       constraints: {
-        distances: [],
+        distances: [
+          {points: [10, 11, 12, 13], distance: 'third_neck'},
+          {points: [0, 1, 2, 3], distance: 'shoulder_elbow_wrist_left'},
+          {points: [4, 5, 6, 7, 8, 9, 10], distance: 'shoulder_to_midhand_left'},
+          {points: [3, 4], distance: 'third_wrist'},
+          {points: [1, 9], distance: 'half_shoulder'},
+          {points: [0, 1], distance: 'across_back_shoulder_neck_base_shoulder'},
+        ],
         angles: [],
       }
     },
