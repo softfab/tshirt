@@ -5818,7 +5818,7 @@ function mainView (state, prev, send) {
 
 function startApp (initialState) {
   const app = choo()
-  app.router(['/', mainView])
+  app.router({default: '/'}, ['/', mainView])
   if (initialState) {
     model.state = xtend(model.state, initialState)
   }
