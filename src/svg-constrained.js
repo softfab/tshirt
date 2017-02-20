@@ -2,21 +2,11 @@ const html = require('choo/html')
 const svgPart = require('./svg-part')
 const solver = require('./verlet-solver')
 
-const svgConstrained = function (part, measurements, solverSteps, send) {
+const svgConstrained = function (part, measurements, solverSteps = 360, width = 500, height = 500) {
   const {points, symmetry, constraints} = part
   const {systemPoints, systemDistances, systemAngles} = solver(points, constraints, symmetry, measurements, solverSteps)
 
-  function onInput (event) {
-    const value = parseFloat(event.target.value)
-    send('setState', {solverSteps: value})
-  }
-
-  return html`
-    <div>
-      <input type="range" min="0" max="360" value="${solverSteps}" oninput=${onInput} style="width: 500px;" />
-      ${svgPart(systemPoints, symmetry, constraints, 500, 500, systemDistances, systemAngles)}
-    </div>
-  `
+  return svgPart(systemPoints, symmetry, constraints, width, height, systemDistances, systemAngles)
 }
 
 module.exports = svgConstrained

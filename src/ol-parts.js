@@ -1,9 +1,13 @@
 const html = require('choo/html')
+const svgConstrained = require('./svg-constrained')
 const svgPart = require('./svg-part')
 // const component = require('nanocomponent')
 
+const WIDTH = 72
+const HEIGHT = 72
+
 const liPart = /*component({
-  render:*/ function (part, index, selected, send) {
+  render:*/ function (part, index, selected, measurements, send) {
     const {points, constraints, symmetry, id} = part
     function onClick () {
       send('selectPart', index)
@@ -15,7 +19,8 @@ const liPart = /*component({
       "
       onclick=${onClick}
     >
-      ${svgPart(points, symmetry)}
+      ${svgPart(points, symmetry, null, WIDTH, HEIGHT)}
+      ${svgConstrained(part, measurements, 360, WIDTH, HEIGHT)}
       ${id}
     </li>
     `
@@ -29,13 +34,13 @@ const liPart = /*component({
 })*/
 
 const olParts = /*component({
-  render:*/ function (parts, selectedIndex, send) {
+  render:*/ function (parts, measurements, selectedIndex, send) {
     return html`
     <ol>
       ${parts.map(
         function (part, index) {
           const selected = (selectedIndex === index)
-          return liPart(part, index, selected, send)
+          return liPart(part, index, selected, measurements, send)
         }
       )}
     </ol>

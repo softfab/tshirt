@@ -111,7 +111,7 @@ function svgPart (points, symmetry = false, constraints = null, width = 72, heig
         fill="#fff" stroke="#000" stroke-width="1"
       />
       ${constraints && constraints.distances && gDistances(constraints.distances, points)}
-      ${systemAngles && gAngles(systemAngles, points)}
+      ${(width >= 200) && systemAngles && gAngles(systemAngles, points)}
       ${symmetry && line(points[0], points[lastIndex])}
       
       ${(width >= 200) && gPoints(points, symmetry)}

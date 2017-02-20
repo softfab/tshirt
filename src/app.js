@@ -57,6 +57,11 @@ function mainView (state, prev, send) {
   const {pattern, selectedPart, solverSteps} = state
   const {id, parts, measurements} = pattern
 
+  function onSetSteps (event) {
+    const value = parseInt(event.target.value, 10)
+    send('setState', {solverSteps: value})
+  }
+
   return html`
     <main class="${prefix}">
       <h1>${id}</h1>
@@ -70,7 +75,7 @@ function mainView (state, prev, send) {
       </section>
       <section>
         <h2>base part shapes</h2>
-        ${olParts(parts, selectedPart, send)}
+        ${olParts(parts, measurements, selectedPart, send)}
         <h2>constraints</h2>
         ${(selectedPart != null) && olConstraints(parts[selectedPart].constraints)}
         todo:
@@ -81,7 +86,8 @@ function mainView (state, prev, send) {
       </section>
       <section>
         <h2>solved shape</h2>
-        ${(selectedPart != null) && svgConstrained(parts[selectedPart], measurements, solverSteps, send)}
+        <input type="range" min="0" max="360" value="${solverSteps}" oninput=${onSetSteps} style="width: 500px;" />
+        ${(selectedPart != null) && svgConstrained(parts[selectedPart], measurements, solverSteps, 500, 500, send)}
         todo: select points in selected part, add/edit distance/angle constraints
       </section>
       <section>
