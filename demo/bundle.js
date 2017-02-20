@@ -5773,6 +5773,11 @@ function mainView (state, prev, send) {
   const {pattern, selectedPart, solverSteps} = state
   const {id, parts, measurements} = pattern
 
+  function onSetSteps (event) {
+    const value = parseInt(event.target.value, 10)
+    send('setState', {solverSteps: value})
+  }
+
   return html`
     <main class="${prefix}">
       <h1>${id}</h1>
@@ -5786,7 +5791,7 @@ function mainView (state, prev, send) {
       </section>
       <section>
         <h2>base part shapes</h2>
-        ${olParts(parts, selectedPart, send)}
+        ${olParts(parts, measurements, selectedPart, send)}
         <h2>constraints</h2>
         ${(selectedPart != null) && olConstraints(parts[selectedPart].constraints)}
         todo:
@@ -5797,7 +5802,8 @@ function mainView (state, prev, send) {
       </section>
       <section>
         <h2>solved shape</h2>
-        ${(selectedPart != null) && svgConstrained(parts[selectedPart], measurements, solverSteps, send)}
+        <input type="range" min="0" max="360" value="${solverSteps}" oninput=${onSetSteps} style="width: 500px;" />
+        ${(selectedPart != null) && svgConstrained(parts[selectedPart], measurements, solverSteps, 500, 500, send)}
         todo: select points in selected part, add/edit distance/angle constraints
       </section>
       <section>
@@ -6063,11 +6069,15 @@ const olMeasurements = function (measurements, send) {
 module.exports = olMeasurements
 },{"choo/html":"/Users/forresto/src/tshirt/node_modules/choo/html.js","sheetify/insert":"/Users/forresto/src/tshirt/node_modules/browserify/lib/_empty.js"}],"/Users/forresto/src/tshirt/src/ol-parts.js":[function(require,module,exports){
 const html = require('choo/html')
+const svgConstrained = require('./svg-constrained')
 const svgPart = require('./svg-part')
 // const component = require('nanocomponent')
 
+const WIDTH = 72
+const HEIGHT = 72
+
 const liPart = /*component({
-  render:*/ function (part, index, selected, send) {
+  render:*/ function (part, index, selected, measurements, send) {
     const {points, constraints, symmetry, id} = part
     function onClick () {
       send('selectPart', index)
@@ -6079,7 +6089,8 @@ const liPart = /*component({
       "
       onclick=${onClick}
     >
-      ${svgPart(points, symmetry)}
+      ${svgPart(points, symmetry, null, WIDTH, HEIGHT)}
+      ${svgConstrained(part, measurements, 360, WIDTH, HEIGHT)}
       ${id}
     </li>
     `
@@ -6093,13 +6104,13 @@ const liPart = /*component({
 })*/
 
 const olParts = /*component({
-  render:*/ function (parts, selectedIndex, send) {
+  render:*/ function (parts, measurements, selectedIndex, send) {
     return html`
     <ol>
       ${parts.map(
         function (part, index) {
           const selected = (selectedIndex === index)
-          return liPart(part, index, selected, send)
+          return liPart(part, index, selected, measurements, send)
         }
       )}
     </ol>
@@ -6115,26 +6126,16 @@ const olParts = /*component({
 
 module.exports = olParts
 
-},{"./svg-part":"/Users/forresto/src/tshirt/src/svg-part.js","choo/html":"/Users/forresto/src/tshirt/node_modules/choo/html.js"}],"/Users/forresto/src/tshirt/src/svg-constrained.js":[function(require,module,exports){
+},{"./svg-constrained":"/Users/forresto/src/tshirt/src/svg-constrained.js","./svg-part":"/Users/forresto/src/tshirt/src/svg-part.js","choo/html":"/Users/forresto/src/tshirt/node_modules/choo/html.js"}],"/Users/forresto/src/tshirt/src/svg-constrained.js":[function(require,module,exports){
 const html = require('choo/html')
 const svgPart = require('./svg-part')
 const solver = require('./verlet-solver')
 
-const svgConstrained = function (part, measurements, solverSteps, send) {
+const svgConstrained = function (part, measurements, solverSteps = 360, width = 500, height = 500) {
   const {points, symmetry, constraints} = part
   const {systemPoints, systemDistances, systemAngles} = solver(points, constraints, symmetry, measurements, solverSteps)
 
-  function onInput (event) {
-    const value = parseFloat(event.target.value)
-    send('setState', {solverSteps: value})
-  }
-
-  return html`
-    <div>
-      <input type="range" min="0" max="360" value="${solverSteps}" oninput=${onInput} style="width: 500px;" />
-      ${svgPart(systemPoints, symmetry, constraints, 500, 500, systemDistances, systemAngles)}
-    </div>
-  `
+  return svgPart(systemPoints, symmetry, constraints, width, height, systemDistances, systemAngles)
 }
 
 module.exports = svgConstrained
@@ -6253,7 +6254,7 @@ function svgPart (points, symmetry = false, constraints = null, width = 72, heig
         fill="#fff" stroke="#000" stroke-width="1"
       />
       ${constraints && constraints.distances && gDistances(constraints.distances, points)}
-      ${systemAngles && gAngles(systemAngles, points)}
+      ${(width >= 200) && systemAngles && gAngles(systemAngles, points)}
       ${symmetry && line(points[0], points[lastIndex])}
       
       ${(width >= 200) && gPoints(points, symmetry)}
