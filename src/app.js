@@ -30,7 +30,7 @@ const model = {
       return { selectedPart: data }
     },
     selectPoint: function (state, data) {
-      return { selectPoint: data }
+      return { selectedPoint: data }
     },
     setMeasurement: function (state, data) {
       let {pattern} = state

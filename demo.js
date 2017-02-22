@@ -166,6 +166,21 @@ const pattern = {
         angles: [],
       }
     },
+    {
+      id: 'arm top left',
+      from: 'arm top',
+      reflect: 'x'
+    },
+    {
+      id: 'arm front left',
+      from: 'arm front',
+      reflect: 'x'
+    },
+    {
+      id: 'arm back left',
+      from: 'arm back',
+      reflect: 'x'
+    },
   ],
 }
 

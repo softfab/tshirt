@@ -1,4 +1,5 @@
 const html = require('choo/html')
+const xtend = require('xtend')
 const svgConstrained = require('./svg-constrained')
 const svgPart = require('./svg-part')
 // const component = require('nanocomponent')
@@ -39,6 +40,20 @@ const olParts = /*component({
     <ol>
       ${parts.map(
         function (part, index) {
+          const {id, from, reflect} = part
+          if (from) {
+            for (let i = 0, len = parts.length; i < len; i++) {
+              const fromPart = parts[i]
+              if (fromPart.id === from) {
+                const xReflect = reflect.indexOf('x') > -1 ? -1 : 1
+                const yReflect = reflect.indexOf('y') > -1 ? -1 : 1
+                const points = fromPart.points.map(function (point) {
+                  return {x: point.x * xReflect, y: point.y * yReflect}
+                })
+                part = xtend(parts[i], {id, points})
+              }
+            }
+          }
           const selected = (selectedIndex === index)
           return liPart(part, index, selected, measurements, send)
         }
