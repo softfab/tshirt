@@ -3,6 +3,7 @@ const choo = require('choo')
 const xtend = require('xtend')
 const css = require('sheetify')
 
+const {getSolvedMeasurements} = require('./app-selectors')
 const olParts = require('./ol-parts')
 const olMeasurements = require('./ol-measurements')
 const olDerived = require('./ol-derived')
@@ -44,6 +45,7 @@ const model = {
         }
       }
       pattern.measurements.base = base
+      pattern.measurements = xtend(pattern.measurements, {})
       pattern = xtend(pattern, {})
       return {pattern}
     },
@@ -56,6 +58,7 @@ const model = {
 function mainView (state, prev, send) {
   const {pattern, selectedPart, solverSteps} = state
   const {id, parts, measurements} = pattern
+  const solvedMeasurements = getSolvedMeasurements(state)
 
   function onSetSteps (event) {
     const value = parseInt(event.target.value, 10)
@@ -75,7 +78,7 @@ function mainView (state, prev, send) {
       </section>
       <section>
         <h2>base part shapes</h2>
-        ${olParts(parts, measurements, selectedPart, send)}
+        ${olParts(parts, solvedMeasurements, selectedPart, send)}
         <h2>constraints</h2>
         ${(selectedPart != null) && olConstraints(parts[selectedPart].constraints)}
         todo:
@@ -87,7 +90,7 @@ function mainView (state, prev, send) {
       <section>
         <h2>solved shape</h2>
         <input type="range" min="0" max="360" value="${solverSteps}" oninput=${onSetSteps} style="width: 500px;" />
-        ${(selectedPart != null) && svgConstrained(parts[selectedPart], measurements, solverSteps, 500, 500, send)}
+        ${(selectedPart != null) && svgConstrained(parts[selectedPart], solvedMeasurements, solverSteps, 500, 500, send)}
         todo: select points in selected part, add/edit distance/angle constraints
       </section>
       <section>
