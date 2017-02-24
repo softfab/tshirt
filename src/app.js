@@ -73,7 +73,7 @@ function mainView (state, prev, send) {
         ${olMeasurements(measurements.base, send)}
         todo: load from bodylabs
         <h2>derived values</h2>
-        ${olDerived(measurements.derived)}
+        ${olDerived(measurements.derived, solvedMeasurements)}
         todo: add & edit
       </section>
       <section>
