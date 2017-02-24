@@ -1,6 +1,5 @@
 const html = require('choo/html')
 const xtend = require('xtend')
-const svgConstrained = require('./svg-constrained')
 const svgPart = require('./svg-part')
 // const component = require('nanocomponent')
 
@@ -8,8 +7,10 @@ const WIDTH = 72
 const HEIGHT = 72
 
 const liPart = /*component({
-  render:*/ function (part, index, selected, measurements, send) {
+  render:*/ function (part, solvedPart, index, selected, send) {
     const {points, constraints, symmetry, id} = part
+    const {systemPoints, systemDistances, systemAngles} = solvedPart
+
     function onClick () {
       send('selectPart', index)
     }
@@ -21,7 +22,7 @@ const liPart = /*component({
       onclick=${onClick}
     >
       ${svgPart(points, symmetry, null, WIDTH, HEIGHT)}
-      ${svgConstrained(part, measurements, 360, WIDTH, HEIGHT)}
+      ${svgPart(systemPoints, symmetry, constraints, WIDTH, HEIGHT, systemDistances, systemAngles)}
       ${id}
     </li>
     `
@@ -35,27 +36,13 @@ const liPart = /*component({
 })*/
 
 const olParts = /*component({
-  render:*/ function (parts, measurements, selectedIndex, send) {
+  render:*/ function (parts, solvedParts, selectedIndex, send) {
     return html`
     <ol>
       ${parts.map(
         function (part, index) {
-          const {id, from, reflect} = part
-          if (from) {
-            for (let i = 0, len = parts.length; i < len; i++) {
-              const fromPart = parts[i]
-              if (fromPart.id === from) {
-                const xReflect = reflect.indexOf('x') > -1 ? -1 : 1
-                const yReflect = reflect.indexOf('y') > -1 ? -1 : 1
-                const points = fromPart.points.map(function (point) {
-                  return {x: point.x * xReflect, y: point.y * yReflect}
-                })
-                part = xtend(parts[i], {id, points})
-              }
-            }
-          }
           const selected = (selectedIndex === index)
-          return liPart(part, index, selected, measurements, send)
+          return liPart(part, solvedParts[index], index, selected, send)
         }
       )}
     </ol>

@@ -27,6 +27,7 @@
   "dependencies": {
     "choo": "^4.1.0",
     "expr-eval": "^1.0.0",
+    "reselect": "^2.5.4",
     "sheetify": "^6.0.1",
     "verlet-constraint": "^1.1.0",
     "verlet-point": "^1.2.1",

@@ -4,7 +4,6 @@
 const System = require('verlet-system')
 const Point = require('verlet-point')
 const Constraint = require('verlet-constraint')
-const Parser = require('expr-eval').Parser
 const {AngleConstraint, rotate} = require('./verlet-constraint-angle-2d')
 const {pointsWithSymmetry, distanceBetween} = require('./geometry.js')
 
@@ -43,23 +42,7 @@ function verticesRotate (vertices, a1, b1, a2, b2) {
 }
 
 function getDistance (constraint, measurements) {
-  const {base, derived} = measurements
-  let baseObj = {}
-  for (let i = 0, len = base.length; i < len; i++) {
-    const {key, value} = base[i]
-    if (constraint.distance === key) {
-      return value
-    }
-    baseObj[key] = value
-  }
-  // TODO cache these?
-  for (let i = 0, len = derived.length; i < len; i++) {
-    const {key, value} = derived[i]
-    baseObj[key] = Parser.evaluate(value, baseObj)
-    if (constraint.distance === key) {
-      return baseObj[key]
-    }
-  }
+  if (measurements[constraint.distance]) return measurements[constraint.distance]
   throw new Error('measurement not found')
 }
 
