@@ -82,7 +82,7 @@ function mainView (state, prev, send) {
         <h2>base part shapes</h2>
         ${olParts(reflectedParts, solvedParts, selectedPart, send)}
         <h2>constraints</h2>
-        ${(selectedPart != null) && olConstraints(parts[selectedPart].constraints)}
+        ${(selectedPart != null) && olConstraints(reflectedParts[selectedPart].constraints)}
         todo:
         <ul>
           <li>add parts</li>
@@ -92,7 +92,7 @@ function mainView (state, prev, send) {
       <section>
         <h2>solved shape</h2>
         <input type="range" min="0" max="360" value="${solverSteps}" oninput=${onSetSteps} style="width: 500px;" />
-        ${(selectedPart != null) && svgConstrained(parts[selectedPart], solvedMeasurements, solverSteps, 500, 500, send)}
+        ${(selectedPart != null) && svgConstrained(reflectedParts[selectedPart], solvedMeasurements, solverSteps, 500, 500, send)}
         todo: select points in selected part, add/edit distance/angle constraints
       </section>
       <section>
