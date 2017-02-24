@@ -3,7 +3,7 @@ const choo = require('choo')
 const xtend = require('xtend')
 const css = require('sheetify')
 
-const {getSolvedMeasurements} = require('./app-selectors')
+const {getSolvedMeasurements, getPartsPoints, getSolvedParts} = require('./app-selectors')
 const olParts = require('./ol-parts')
 const olMeasurements = require('./ol-measurements')
 const olDerived = require('./ol-derived')
@@ -59,6 +59,8 @@ function mainView (state, prev, send) {
   const {pattern, selectedPart, solverSteps} = state
   const {id, parts, measurements} = pattern
   const solvedMeasurements = getSolvedMeasurements(state)
+  const reflectedParts = getPartsPoints(state)
+  const solvedParts = getSolvedParts(state)
 
   function onSetSteps (event) {
     const value = parseInt(event.target.value, 10)
@@ -78,7 +80,7 @@ function mainView (state, prev, send) {
       </section>
       <section>
         <h2>base part shapes</h2>
-        ${olParts(parts, solvedMeasurements, selectedPart, send)}
+        ${olParts(reflectedParts, solvedParts, selectedPart, send)}
         <h2>constraints</h2>
         ${(selectedPart != null) && olConstraints(parts[selectedPart].constraints)}
         todo:
