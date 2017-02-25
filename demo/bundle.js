@@ -167,6 +167,21 @@ const pattern = {
         angles: [],
       }
     },
+    {
+      id: 'arm top left',
+      from: 'arm top',
+      reflect: 'x'
+    },
+    {
+      id: 'arm front left',
+      from: 'arm front',
+      reflect: 'x'
+    },
+    {
+      id: 'arm back left',
+      from: 'arm back',
+      reflect: 'x'
+    },
   ],
 }
 
@@ -4217,6 +4232,118 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
+},{}],"/Users/forresto/src/tshirt/node_modules/reselect/lib/index.js":[function(require,module,exports){
+'use strict';
+
+exports.__esModule = true;
+exports.defaultMemoize = defaultMemoize;
+exports.createSelectorCreator = createSelectorCreator;
+exports.createStructuredSelector = createStructuredSelector;
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function defaultEqualityCheck(a, b) {
+  return a === b;
+}
+
+function defaultMemoize(func) {
+  var equalityCheck = arguments.length <= 1 || arguments[1] === undefined ? defaultEqualityCheck : arguments[1];
+
+  var lastArgs = null;
+  var lastResult = null;
+  return function () {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    if (lastArgs === null || lastArgs.length !== args.length || !args.every(function (value, index) {
+      return equalityCheck(value, lastArgs[index]);
+    })) {
+      lastResult = func.apply(undefined, args);
+    }
+    lastArgs = args;
+    return lastResult;
+  };
+}
+
+function getDependencies(funcs) {
+  var dependencies = Array.isArray(funcs[0]) ? funcs[0] : funcs;
+
+  if (!dependencies.every(function (dep) {
+    return typeof dep === 'function';
+  })) {
+    var dependencyTypes = dependencies.map(function (dep) {
+      return typeof dep;
+    }).join(', ');
+    throw new Error('Selector creators expect all input-selectors to be functions, ' + ('instead received the following types: [' + dependencyTypes + ']'));
+  }
+
+  return dependencies;
+}
+
+function createSelectorCreator(memoize) {
+  for (var _len2 = arguments.length, memoizeOptions = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+    memoizeOptions[_key2 - 1] = arguments[_key2];
+  }
+
+  return function () {
+    for (var _len3 = arguments.length, funcs = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      funcs[_key3] = arguments[_key3];
+    }
+
+    var recomputations = 0;
+    var resultFunc = funcs.pop();
+    var dependencies = getDependencies(funcs);
+
+    var memoizedResultFunc = memoize.apply(undefined, [function () {
+      recomputations++;
+      return resultFunc.apply(undefined, arguments);
+    }].concat(memoizeOptions));
+
+    var selector = function selector(state, props) {
+      for (var _len4 = arguments.length, args = Array(_len4 > 2 ? _len4 - 2 : 0), _key4 = 2; _key4 < _len4; _key4++) {
+        args[_key4 - 2] = arguments[_key4];
+      }
+
+      var params = dependencies.map(function (dependency) {
+        return dependency.apply(undefined, [state, props].concat(args));
+      });
+      return memoizedResultFunc.apply(undefined, _toConsumableArray(params));
+    };
+
+    selector.resultFunc = resultFunc;
+    selector.recomputations = function () {
+      return recomputations;
+    };
+    selector.resetRecomputations = function () {
+      return recomputations = 0;
+    };
+    return selector;
+  };
+}
+
+var createSelector = exports.createSelector = createSelectorCreator(defaultMemoize);
+
+function createStructuredSelector(selectors) {
+  var selectorCreator = arguments.length <= 1 || arguments[1] === undefined ? createSelector : arguments[1];
+
+  if (typeof selectors !== 'object') {
+    throw new Error('createStructuredSelector expects first argument to be an object ' + ('where each property is a selector, instead received a ' + typeof selectors));
+  }
+  var objectKeys = Object.keys(selectors);
+  return selectorCreator(objectKeys.map(function (key) {
+    return selectors[key];
+  }), function () {
+    for (var _len5 = arguments.length, values = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+      values[_key5] = arguments[_key5];
+    }
+
+    return values.reduce(function (composition, value, index) {
+      composition[objectKeys[index]] = value;
+      return composition;
+    }, {});
+  });
+}
 },{}],"/Users/forresto/src/tshirt/node_modules/sheet-router/_pathname.js":[function(require,module,exports){
 /* eslint-disable no-useless-escape */
 var electron = '^(file:\/\/|\/)(.*\.html?\/?)?'
@@ -5720,12 +5847,86 @@ module.exports = [
   'onfocusout'
 ]
 
-},{}],"/Users/forresto/src/tshirt/src/app.js":[function(require,module,exports){
+},{}],"/Users/forresto/src/tshirt/src/app-selectors.js":[function(require,module,exports){
+const {createSelector} = require('reselect')
+const Parser = require('expr-eval').Parser
+const xtend = require('xtend')
+
+const solver = require('./verlet-solver')
+
+
+const getMeasurements = function (state) {
+  return state.pattern.measurements
+}
+
+// Expensive should be stuff cached til state.pattern.measurements changes
+const getSolvedMeasurements = createSelector(
+  [ getMeasurements ],
+  function (measurements) {
+    const {base, derived} = measurements
+    let solved = {}
+    for (let i = 0, len = base.length; i < len; i++) {
+      const {key, value} = base[i]
+      solved[key] = value
+    }
+    for (let i = 0, len = derived.length; i < len; i++) {
+      const {key, value} = derived[i]
+      solved[key] = Parser.evaluate(value, solved)
+    }
+    return solved
+  }
+)
+
+const getParts = function (state) {
+  return state.pattern.parts
+}
+
+// Do reflection for parts depending on other parts
+const getPartsPoints = createSelector(
+  [ getParts ],
+  function (parts) {
+    return parts.map(function (part) {
+      const {id, from, reflect} = part
+      if (from) {
+        for (let i = 0, len = parts.length; i < len; i++) {
+          const fromPart = parts[i]
+          if (fromPart.id === from) {
+            const xReflect = reflect.indexOf('x') > -1 ? -1 : 1
+            const yReflect = reflect.indexOf('y') > -1 ? -1 : 1
+            const points = fromPart.points.map(function (point) {
+              return {x: point.x * xReflect, y: point.y * yReflect}
+            })
+            part = xtend(parts[i], {id, points})
+            return part
+          }
+        }
+      }
+      return part
+    })
+  }
+)
+
+const getSolvedParts = createSelector(
+  [ getPartsPoints, getSolvedMeasurements ],
+  function (parts, measurements) {
+    return parts.map(function (part) {
+      const {points, constraints, symmetry} = part
+      const solverSteps = 360
+      return solver(points, constraints, symmetry, measurements, solverSteps)
+    })
+  }
+)
+
+
+module.exports = {getSolvedMeasurements, getPartsPoints, getSolvedParts}
+
+},{"./verlet-solver":"/Users/forresto/src/tshirt/src/verlet-solver.js","expr-eval":"/Users/forresto/src/tshirt/node_modules/expr-eval/dist/bundle.js","reselect":"/Users/forresto/src/tshirt/node_modules/reselect/lib/index.js","xtend":"/Users/forresto/src/tshirt/node_modules/xtend/immutable.js"}],"/Users/forresto/src/tshirt/src/app.js":[function(require,module,exports){
 const html = require('choo/html')
 const choo = require('choo')
 const xtend = require('xtend')
 const css = 0
 
+const {getSolvedMeasurements, getPartsPoints, getSolvedParts} = require('./app-selectors')
 const olParts = require('./ol-parts')
 const olMeasurements = require('./ol-measurements')
 const olDerived = require('./ol-derived')
@@ -5746,7 +5947,7 @@ const model = {
       return { selectedPart: data }
     },
     selectPoint: function (state, data) {
-      return { selectPoint: data }
+      return { selectedPoint: data }
     },
     setMeasurement: function (state, data) {
       let {pattern} = state
@@ -5760,6 +5961,7 @@ const model = {
         }
       }
       pattern.measurements.base = base
+      pattern.measurements = xtend(pattern.measurements, {})
       pattern = xtend(pattern, {})
       return {pattern}
     },
@@ -5772,6 +5974,9 @@ const model = {
 function mainView (state, prev, send) {
   const {pattern, selectedPart, solverSteps} = state
   const {id, parts, measurements} = pattern
+  const solvedMeasurements = getSolvedMeasurements(state)
+  const reflectedParts = getPartsPoints(state)
+  const solvedParts = getSolvedParts(state)
 
   function onSetSteps (event) {
     const value = parseInt(event.target.value, 10)
@@ -5786,14 +5991,14 @@ function mainView (state, prev, send) {
         ${olMeasurements(measurements.base, send)}
         todo: load from bodylabs
         <h2>derived values</h2>
-        ${olDerived(measurements.derived)}
+        ${olDerived(measurements.derived, solvedMeasurements)}
         todo: add & edit
       </section>
       <section>
         <h2>base part shapes</h2>
-        ${olParts(parts, measurements, selectedPart, send)}
+        ${olParts(reflectedParts, solvedParts, selectedPart, send)}
         <h2>constraints</h2>
-        ${(selectedPart != null) && olConstraints(parts[selectedPart].constraints)}
+        ${(selectedPart != null) && olConstraints(reflectedParts[selectedPart].constraints)}
         todo:
         <ul>
           <li>add parts</li>
@@ -5803,7 +6008,7 @@ function mainView (state, prev, send) {
       <section>
         <h2>solved shape</h2>
         <input type="range" min="0" max="360" value="${solverSteps}" oninput=${onSetSteps} style="width: 500px;" />
-        ${(selectedPart != null) && svgConstrained(parts[selectedPart], measurements, solverSteps, 500, 500, send)}
+        ${(selectedPart != null) && svgConstrained(reflectedParts[selectedPart], solvedMeasurements, solverSteps, 500, 500, send)}
         todo: select points in selected part, add/edit distance/angle constraints
       </section>
       <section>
@@ -5853,7 +6058,7 @@ function startApp (initialState) {
 
 module.exports = startApp
 
-},{"./ol-constraints":"/Users/forresto/src/tshirt/src/ol-constraints.js","./ol-derived":"/Users/forresto/src/tshirt/src/ol-derived.js","./ol-measurements":"/Users/forresto/src/tshirt/src/ol-measurements.js","./ol-parts":"/Users/forresto/src/tshirt/src/ol-parts.js","./svg-constrained":"/Users/forresto/src/tshirt/src/svg-constrained.js","choo":"/Users/forresto/src/tshirt/node_modules/choo/index.js","choo/html":"/Users/forresto/src/tshirt/node_modules/choo/html.js","sheetify/insert":"/Users/forresto/src/tshirt/node_modules/browserify/lib/_empty.js","xtend":"/Users/forresto/src/tshirt/node_modules/xtend/immutable.js"}],"/Users/forresto/src/tshirt/src/geometry.js":[function(require,module,exports){
+},{"./app-selectors":"/Users/forresto/src/tshirt/src/app-selectors.js","./ol-constraints":"/Users/forresto/src/tshirt/src/ol-constraints.js","./ol-derived":"/Users/forresto/src/tshirt/src/ol-derived.js","./ol-measurements":"/Users/forresto/src/tshirt/src/ol-measurements.js","./ol-parts":"/Users/forresto/src/tshirt/src/ol-parts.js","./svg-constrained":"/Users/forresto/src/tshirt/src/svg-constrained.js","choo":"/Users/forresto/src/tshirt/node_modules/choo/index.js","choo/html":"/Users/forresto/src/tshirt/node_modules/choo/html.js","sheetify/insert":"/Users/forresto/src/tshirt/node_modules/browserify/lib/_empty.js","xtend":"/Users/forresto/src/tshirt/node_modules/xtend/immutable.js"}],"/Users/forresto/src/tshirt/src/geometry.js":[function(require,module,exports){
 function pointsBox (points) {
   let top = -Infinity
   let right = -Infinity
@@ -6002,18 +6207,20 @@ module.exports = olConstraints
 },{"choo/html":"/Users/forresto/src/tshirt/node_modules/choo/html.js"}],"/Users/forresto/src/tshirt/src/ol-derived.js":[function(require,module,exports){
 const html = require('choo/html')
 
-const liDerived = function (measurement, index) {
-  return html`
-  <li>
-    <label>
-      ${measurement.key}
-      <input type="text" value="${measurement.value}" disabled></input>
-    </label>
-  </li>
-  `
-}
+const olDerived = function (measurements, solvedMeasurements) {
 
-const olDerived = function (measurements) {
+  const liDerived = function (measurement, index) {
+    return html`
+    <li>
+      <label>
+        ${measurement.key}
+        <input type="text" value="${measurement.value}" disabled></input>
+        ${solvedMeasurements[measurement.key]}
+      </label>
+    </li>
+    `
+  }
+
   return html`
   <ol>
     ${measurements.map(liDerived)}
@@ -6069,7 +6276,7 @@ const olMeasurements = function (measurements, send) {
 module.exports = olMeasurements
 },{"choo/html":"/Users/forresto/src/tshirt/node_modules/choo/html.js","sheetify/insert":"/Users/forresto/src/tshirt/node_modules/browserify/lib/_empty.js"}],"/Users/forresto/src/tshirt/src/ol-parts.js":[function(require,module,exports){
 const html = require('choo/html')
-const svgConstrained = require('./svg-constrained')
+const xtend = require('xtend')
 const svgPart = require('./svg-part')
 // const component = require('nanocomponent')
 
@@ -6077,8 +6284,10 @@ const WIDTH = 72
 const HEIGHT = 72
 
 const liPart = /*component({
-  render:*/ function (part, index, selected, measurements, send) {
+  render:*/ function (part, solvedPart, index, selected, send) {
     const {points, constraints, symmetry, id} = part
+    const {systemPoints, systemDistances, systemAngles} = solvedPart
+
     function onClick () {
       send('selectPart', index)
     }
@@ -6090,7 +6299,7 @@ const liPart = /*component({
       onclick=${onClick}
     >
       ${svgPart(points, symmetry, null, WIDTH, HEIGHT)}
-      ${svgConstrained(part, measurements, 360, WIDTH, HEIGHT)}
+      ${svgPart(systemPoints, symmetry, constraints, WIDTH, HEIGHT, systemDistances, systemAngles)}
       ${id}
     </li>
     `
@@ -6104,13 +6313,13 @@ const liPart = /*component({
 })*/
 
 const olParts = /*component({
-  render:*/ function (parts, measurements, selectedIndex, send) {
+  render:*/ function (parts, solvedParts, selectedIndex, send) {
     return html`
     <ol>
       ${parts.map(
         function (part, index) {
           const selected = (selectedIndex === index)
-          return liPart(part, index, selected, measurements, send)
+          return liPart(part, solvedParts[index], index, selected, send)
         }
       )}
     </ol>
@@ -6126,7 +6335,7 @@ const olParts = /*component({
 
 module.exports = olParts
 
-},{"./svg-constrained":"/Users/forresto/src/tshirt/src/svg-constrained.js","./svg-part":"/Users/forresto/src/tshirt/src/svg-part.js","choo/html":"/Users/forresto/src/tshirt/node_modules/choo/html.js"}],"/Users/forresto/src/tshirt/src/svg-constrained.js":[function(require,module,exports){
+},{"./svg-part":"/Users/forresto/src/tshirt/src/svg-part.js","choo/html":"/Users/forresto/src/tshirt/node_modules/choo/html.js","xtend":"/Users/forresto/src/tshirt/node_modules/xtend/immutable.js"}],"/Users/forresto/src/tshirt/src/svg-constrained.js":[function(require,module,exports){
 const html = require('choo/html')
 const svgPart = require('./svg-part')
 const solver = require('./verlet-solver')
@@ -6343,7 +6552,6 @@ module.exports = {AngleConstraint, rotate}
 const System = require('verlet-system')
 const Point = require('verlet-point')
 const Constraint = require('verlet-constraint')
-const Parser = require('expr-eval').Parser
 const {AngleConstraint, rotate} = require('./verlet-constraint-angle-2d')
 const {pointsWithSymmetry, distanceBetween} = require('./geometry.js')
 
@@ -6382,23 +6590,7 @@ function verticesRotate (vertices, a1, b1, a2, b2) {
 }
 
 function getDistance (constraint, measurements) {
-  const {base, derived} = measurements
-  let baseObj = {}
-  for (let i = 0, len = base.length; i < len; i++) {
-    const {key, value} = base[i]
-    if (constraint.distance === key) {
-      return value
-    }
-    baseObj[key] = value
-  }
-  // TODO cache these?
-  for (let i = 0, len = derived.length; i < len; i++) {
-    const {key, value} = derived[i]
-    baseObj[key] = Parser.evaluate(value, baseObj)
-    if (constraint.distance === key) {
-      return baseObj[key]
-    }
-  }
+  if (measurements[constraint.distance]) return measurements[constraint.distance]
   throw new Error('measurement not found')
 }
 
@@ -6546,4 +6738,4 @@ function solver (points, constraints, symmetry, measurements, steps = 360) {
 
 module.exports = solver
 
-},{"./geometry.js":"/Users/forresto/src/tshirt/src/geometry.js","./verlet-constraint-angle-2d":"/Users/forresto/src/tshirt/src/verlet-constraint-angle-2d.js","expr-eval":"/Users/forresto/src/tshirt/node_modules/expr-eval/dist/bundle.js","verlet-constraint":"/Users/forresto/src/tshirt/node_modules/verlet-constraint/2d.js","verlet-point":"/Users/forresto/src/tshirt/node_modules/verlet-point/2d.js","verlet-system":"/Users/forresto/src/tshirt/node_modules/verlet-system/2d.js"}]},{},["/Users/forresto/src/tshirt/demo.js"]);
+},{"./geometry.js":"/Users/forresto/src/tshirt/src/geometry.js","./verlet-constraint-angle-2d":"/Users/forresto/src/tshirt/src/verlet-constraint-angle-2d.js","verlet-constraint":"/Users/forresto/src/tshirt/node_modules/verlet-constraint/2d.js","verlet-point":"/Users/forresto/src/tshirt/node_modules/verlet-point/2d.js","verlet-system":"/Users/forresto/src/tshirt/node_modules/verlet-system/2d.js"}]},{},["/Users/forresto/src/tshirt/demo.js"]);
