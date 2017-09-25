@@ -184,5 +184,9 @@ const pattern = {
   ],
 }
 
-const el = startApp({pattern})
-document.body.appendChild(el)
+
+const div = document.createElement('main')
+div.className = 'app'
+document.body.appendChild(div)
+const el = startApp({pattern}, '.app')
+

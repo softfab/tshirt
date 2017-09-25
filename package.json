@@ -4,9 +4,10 @@
   "description": "WIP",
   "main": "tshirt.js",
   "scripts": {
-    "start": "bankai start demo.js --debug",
+    "start": "bankai start demo.js --debug --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "bankai build demo.js demo/"
+    "build": "bankai build demo.js demo/",
+    "inspect": "bankai inspect demo.js"
   },
   "repository": {
     "type": "git",
@@ -22,10 +23,11 @@
   },
   "homepage": "https://github.com/softfab/tshirt#readme",
   "devDependencies": {
-    "bankai": "^5.4.0"
+    "bankai": "^8.1.1"
   },
   "dependencies": {
-    "choo": "^4.1.0",
+    "choo": "^6.1.0",
+    "choo-log": "^7.2.1",
     "expr-eval": "^1.0.0",
     "reselect": "^2.5.4",
     "sheetify": "^6.0.1",

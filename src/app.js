@@ -1,4 +1,5 @@
 const html = require('choo/html')
+const log = require('choo-log')
 const choo = require('choo')
 const xtend = require('xtend')
 const css = require('sheetify')
@@ -19,44 +20,51 @@ const prefix = css`
   }
 `
 
-const model = {
-  state: {
-    pattern: {},
-    selectedPart: 0,
-    selectedPoint: null,
-    solverSteps: 360,
-  },
-  reducers: {
-    selectPart: function (state, data) {
-      return { selectedPart: data }
-    },
-    selectPoint: function (state, data) {
-      return { selectedPoint: data }
-    },
-    setMeasurement: function (state, data) {
-      let {pattern} = state
-      const base = pattern.measurements.base.slice()
-      const {key, value} = data
-      for (let i = 0, len = base.length; i < len; i++) {
-        const measurement = base[i]
-        if (measurement.key === key) {
-          // ?
-          base[i] = {key, value}
-        }
-      }
-      pattern.measurements.base = base
-      pattern.measurements = xtend(pattern.measurements, {})
-      pattern = xtend(pattern, {})
-      return {pattern}
-    },
-    setState: function (state, data) {
-      return data
-    }
-  }
+let defaultState = {
+  pattern: {},
+  selectedPart: 0,
+  selectedPoint: null,
+  solverSteps: 360,
 }
 
-function mainView (state, prev, send) {
+function mainStore (state, emitter) {
+  Object.assign(state, defaultState)
+  
+  emitter.on('selectPart', function (part) {
+    state.selectedPart = part
+    emitter.emit('render')
+  })
+  emitter.on('selectPoint', function (point) {
+    state.selectedPoint = point
+    emitter.emit('render')
+  })
+  emitter.on('setMeasurement', function (data) {
+    let {pattern} = state
+    const base = pattern.measurements.base.slice()
+    const {key, value} = data
+    for (let i = 0, len = base.length; i < len; i++) {
+      const measurement = base[i]
+      if (measurement.key === key) {
+        // ?
+        base[i] = {key, value}
+      }
+    }
+    pattern.measurements.base = base
+    pattern.measurements = xtend(pattern.measurements, {})
+    state.pattern = xtend(pattern, {})
+    emitter.emit('render')
+  })
+  emitter.on('setState', function (newState) {
+    Object.assign(state, newState)
+    emitter.emit('render')
+  })
+}
+
+function mainView (state, emit) {
   const {pattern, selectedPart, solverSteps} = state
+  if (!pattern) {
+    return html`<main><h1>loading...</h1></main>`
+  }
   const {id, parts, measurements} = pattern
   const solvedMeasurements = getSolvedMeasurements(state)
   const reflectedParts = getPartsPoints(state)
@@ -64,7 +72,7 @@ function mainView (state, prev, send) {
 
   function onSetSteps (event) {
     const value = parseInt(event.target.value, 10)
-    send('setState', {solverSteps: value})
+    emit('setState', {solverSteps: value})
   }
 
   return html`
@@ -72,7 +80,7 @@ function mainView (state, prev, send) {
       <h1>${id}</h1>
       <section>
         <h2>base measurements</h2>
-        ${olMeasurements(measurements.base, send)}
+        ${olMeasurements(measurements.base, emit)}
         todo: load from bodylabs
         <h2>derived values</h2>
         ${olDerived(measurements.derived, solvedMeasurements)}
@@ -80,7 +88,7 @@ function mainView (state, prev, send) {
       </section>
       <section>
         <h2>base part shapes</h2>
-        ${olParts(reflectedParts, solvedParts, selectedPart, send)}
+        ${olParts(reflectedParts, solvedParts, selectedPart, emit)}
         <h2>constraints</h2>
         ${(selectedPart != null) && olConstraints(reflectedParts[selectedPart].constraints)}
         todo:
@@ -92,7 +100,7 @@ function mainView (state, prev, send) {
       <section>
         <h2>solved shape</h2>
         <input type="range" min="0" max="360" value="${solverSteps}" oninput=${onSetSteps} style="width: 500px;" />
-        ${(selectedPart != null) && svgConstrained(reflectedParts[selectedPart], solvedMeasurements, solverSteps, 500, 500, send)}
+        ${(selectedPart != null) && svgConstrained(reflectedParts[selectedPart], solvedMeasurements, solverSteps, 500, 500, emit)}
         todo: select points in selected part, add/edit distance/angle constraints
       </section>
       <section>
@@ -111,33 +119,14 @@ function mainView (state, prev, send) {
   `
 }
 
-function startApp (initialState) {
+function startApp (initialState = {}, mountSelector = 'body') {
+  Object.assign(defaultState, initialState)
+
   const app = choo()
-  app.router({default: '/'}, ['/', mainView])
-  if (initialState) {
-    model.state = xtend(model.state, initialState)
-  }
-  app.model(model)
-  const el = app.start()
-  return el
+  app.use(log())
+  app.use(mainStore)
+  app.route('/', mainView)
+  app.mount(mountSelector)
 }
-
-
-// const yo = require('yo-yo')
-
-// class App {
-//   constructor (initialState) {
-//     this.el = this.render(initialState)
-//   }
-//   render (state) {
-//     return yo`
-//       <pre>${JSON.stringify(state, null, 2)}</pre>
-//     `
-//   }
-//   setState (state) {
-//     const el = this.render(state)
-//     yo.update(this.el, el)
-//   }
-// }
 
 module.exports = startApp
