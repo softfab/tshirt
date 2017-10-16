@@ -23,14 +23,14 @@
   },
   "homepage": "https://github.com/softfab/tshirt#readme",
   "devDependencies": {
-    "bankai": "^8.1.1"
+    "bankai": "^8.1.0"
   },
   "dependencies": {
-    "choo": "^6.1.0",
+    "choo": "^6.4.2",
     "choo-log": "^7.2.1",
-    "expr-eval": "^1.0.0",
+    "expr-eval": "^1.2.0",
     "reselect": "^2.5.4",
-    "sheetify": "^6.0.1",
+    "sheetify": "^6.2.0",
     "verlet-constraint": "^1.1.0",
     "verlet-point": "^1.2.1",
     "verlet-system": "^1.0.15",

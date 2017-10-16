@@ -39,19 +39,16 @@ function mainStore (state, emitter) {
     emitter.emit('render')
   })
   emitter.on('setMeasurement', function (data) {
-    let {pattern} = state
-    const base = pattern.measurements.base.slice()
+    const {pattern} = state
     const {key, value} = data
-    for (let i = 0, len = base.length; i < len; i++) {
-      const measurement = base[i]
-      if (measurement.key === key) {
-        // ?
-        base[i] = {key, value}
+    const base = pattern.measurements.base.map((measurement) => {
+      if (key === measurement.key) {
+        return {key, value}
       }
-    }
-    pattern.measurements.base = base
-    pattern.measurements = xtend(pattern.measurements, {})
-    state.pattern = xtend(pattern, {})
+      return measurement;
+    })
+    pattern.measurements = xtend(pattern.measurements, {base})
+    // state = xtend(state, {})
     emitter.emit('render')
   })
   emitter.on('setState', function (newState) {
@@ -125,7 +122,8 @@ function startApp (initialState = {}, mountSelector = 'body') {
   const app = choo()
   app.use(log())
   app.use(mainStore)
-  app.route('/', mainView)
+  app.route('/tshirt', mainView)
+  app.route('*', mainView)
   app.mount(mountSelector)
 }
 

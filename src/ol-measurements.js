@@ -31,7 +31,7 @@ const liMeasurement = function (measurement, index) {
       />
       <input type="range" class="slider"
         value="${value}"
-        min="0" max="${Math.max(value, 200)}"
+        min="0" max="200"
         step="0.125"
         oninput=${onInput}
       />

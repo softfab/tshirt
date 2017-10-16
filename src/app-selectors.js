@@ -4,16 +4,13 @@ const xtend = require('xtend')
 
 const solver = require('./verlet-solver')
 
-
-const getMeasurements = function (state) {
-  return state.pattern.measurements
-}
-
-// Expensive should be stuff cached til state.pattern.measurements changes
+// Expensive stuff should be cached til state.pattern.measurements changes
 const getSolvedMeasurements = createSelector(
-  [ getMeasurements ],
-  function (measurements) {
-    const {base, derived} = measurements
+  [
+    state => state.pattern.measurements.base,
+    state => state.pattern.measurements.derived,
+  ],
+  function (base, derived) {
     let solved = {}
     for (let i = 0, len = base.length; i < len; i++) {
       const {key, value} = base[i]
@@ -27,13 +24,11 @@ const getSolvedMeasurements = createSelector(
   }
 )
 
-const getParts = function (state) {
-  return state.pattern.parts
-}
-
 // Do reflection for parts depending on other parts
 const getPartsPoints = createSelector(
-  [ getParts ],
+  [
+    state => state.pattern.parts
+  ],
   function (parts) {
     return parts.map(function (part) {
       const {id, from, reflect} = part
@@ -57,7 +52,10 @@ const getPartsPoints = createSelector(
 )
 
 const getSolvedParts = createSelector(
-  [ getPartsPoints, getSolvedMeasurements ],
+  [
+    getPartsPoints,
+    getSolvedMeasurements 
+  ],
   function (parts, measurements) {
     return parts.map(function (part) {
       const {points, constraints, symmetry} = part
